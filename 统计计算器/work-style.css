@@ -1,6 +1,6 @@
 .calculator-container {
     max-width: 680px;
-    margin: calc(var(--nav-height, 70px) + 28px) auto 56px auto;
+    margin: 40px auto 56px auto;
     background: var(--surface-color);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-xl);
@@ -138,7 +138,7 @@
 /* 响应式微调 */
 @media (max-width: 768px) {
     .calculator-container {
-        margin: calc(var(--nav-height-mobile, 60px) + 20px) 20px 40px 20px;
+        margin: 24px 20px 40px 20px;
         padding: 28px 20px;
     }
 
