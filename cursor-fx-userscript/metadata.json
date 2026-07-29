@@ -1,0 +1,7 @@
+{
+      "description": "A Tampermonkey userscript that replaces the system cursor with a smooth dot + ring cursor, featuring hover fitting, text caret mode, click spring scale, and scroll trail.",
+      "author": "高新炀",
+      "date": "2026-07-26",
+      "tag": ["JavaScript","Tampermonkey"],
+      "link": "https://github.com/Xinyang-Gao/cursor-fx-userscript"
+    } 
