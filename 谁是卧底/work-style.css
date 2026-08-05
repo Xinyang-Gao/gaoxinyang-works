@@ -1,0 +1,1423 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    font-family: 'Segoe UI', 'PingFang SC', Roboto, 'Helvetica Neue', sans-serif;
+    min-height: 100vh;
+    background: #0b0e1a;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 16px;
+}
+
+/* ===== 主容器 ===== */
+.app {
+    width: 100%;
+    max-width: 1000px;
+    min-height: 580px;
+    background: #1a1f35;
+    border-radius: 44px;
+    padding: 28px 32px 36px;
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.7);
+    border: 1px solid #2a2f4a;
+    position: relative;
+    transition: padding 0.3s ease;
+}
+
+/* ===== 顶部标题 ===== */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 26px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logo-icon {
+    font-size: 30px;
+    line-height: 1;
+    color: #b9b0d6;
+    width: 40px;
+    text-align: center;
+}
+
+.logo h1 {
+    font-size: 26px;
+    font-weight: 700;
+    color: #f0e9ff;
+    letter-spacing: 0.5px;
+}
+
+.status-badge {
+    background: #2a2f4a;
+    padding: 7px 20px;
+    border-radius: 40px;
+    color: #b9b0d6;
+    font-size: 14px;
+    font-weight: 500;
+    border: 1px solid #3a3f5a;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    white-space: nowrap;
+}
+
+.status-badge .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    background: #4ade80;
+    animation: pulse-dot 1.8s ease-in-out infinite;
+    flex-shrink: 0;
+}
+
+.status-badge .dot.inactive {
+    background: #f87171;
+    animation: none;
+}
+
+@keyframes pulse-dot {
+
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.35;
+        transform: scale(0.7);
+    }
+}
+
+/* ===== 选择人数界面 ===== */
+.phase-select {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 360px;
+    gap: 30px;
+}
+
+.phase-select .subtitle {
+    color: #a8a0c2;
+    font-size: 17px;
+    font-weight: 400;
+    letter-spacing: 1.5px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.phase-select .subtitle i {
+    color: #7c5cfc;
+    font-size: 20px;
+}
+
+.player-selector {
+    display: flex;
+    align-items: center;
+    gap: 26px;
+    background: #2a2f4a;
+    padding: 18px 34px;
+    border-radius: 60px;
+    border: 1px solid #3a3f5a;
+}
+
+.player-selector button {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: none;
+    background: #3a3f5a;
+    color: #d4cdf0;
+    font-size: 26px;
+    font-weight: 300;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    touch-action: manipulation;
+}
+
+.player-selector button:hover {
+    background: #4a4f6a;
+    color: #fff;
+}
+
+.player-selector button:active {
+    transform: scale(0.92);
+}
+
+.player-selector .count {
+    font-size: 48px;
+    font-weight: 600;
+    color: #f0e9ff;
+    min-width: 56px;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+
+.btn-primary {
+    padding: 15px 52px;
+    border: none;
+    border-radius: 60px;
+    font-size: 19px;
+    font-weight: 600;
+    color: #fff;
+    background: #7c5cfc;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 24px rgba(92, 60, 220, 0.35);
+    letter-spacing: 0.5px;
+    touch-action: manipulation;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(92, 60, 220, 0.5);
+}
+
+.btn-primary:active {
+    transform: translateY(0px);
+    box-shadow: 0 4px 16px rgba(92, 60, 220, 0.3);
+}
+
+.btn-primary:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.btn-secondary {
+    padding: 10px 26px;
+    border: 1px solid #3a3f5a;
+    border-radius: 40px;
+    background: #2a2f4a;
+    color: #c4b5fd;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    touch-action: manipulation;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-secondary:hover {
+    background: #3a3f5a;
+    border-color: #5a5f7a;
+    color: #fff;
+}
+
+/* ===== 查看词条阶段 ===== */
+.phase-view {
+    display: none;
+    flex-direction: column;
+    gap: 22px;
+}
+
+.phase-view.active {
+    display: flex;
+}
+
+.view-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.view-header .title {
+    color: #f0e9ff;
+    font-size: 20px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.view-header .title i {
+    color: #7c5cfc;
+}
+
+.view-header .progress {
+    color: #a8a0c2;
+    font-size: 14px;
+    background: #2a2f4a;
+    padding: 6px 18px;
+    border-radius: 40px;
+    border: 1px solid #3a3f5a;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.view-header .progress span {
+    color: #f0e9ff;
+    font-weight: 600;
+}
+
+/* ===== 卡片网格 ===== */
+.card-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 22px;
+    padding: 8px 0 4px;
+}
+
+/* ===== 单个卡片容器 ===== */
+.card-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    width: 136px;
+    flex-shrink: 0;
+}
+
+.card-container {
+    width: 136px;
+    height: 178px;
+    perspective: 900px;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.card {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+    border-radius: 20px;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.5);
+}
+
+.card.flipped {
+    transform: rotateY(180deg);
+}
+
+.card-face {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    padding: 16px;
+    text-align: center;
+    word-break: break-word;
+}
+
+/* 卡片正面 (编号) */
+.card-front {
+    background: #2a2f4a;
+    border: 1px solid #3a3f5a;
+    color: #f0e9ff;
+    font-size: 48px;
+    font-weight: 700;
+}
+
+.card-front .card-number {
+    font-size: 54px;
+    line-height: 1;
+    text-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.card-front .card-label {
+    font-size: 12px;
+    font-weight: 400;
+    color: #8a82aa;
+    margin-top: 4px;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.card-front .card-label i {
+    font-size: 14px;
+}
+
+/* 卡片反面 (词条) */
+.card-back {
+    background: #f5f0ff;
+    transform: rotateY(180deg);
+    color: #1e1a2e;
+    border: 1px solid #d4cdf0;
+    font-size: 24px;
+    font-weight: 700;
+    padding: 18px 14px;
+    box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.6);
+}
+
+.card-back .word-text {
+    line-height: 1.3;
+}
+
+/* 卡片锁定状态 */
+.card.locked {
+    transform: rotateY(0deg);
+    border: 2px solid #4ade80;
+    box-shadow: 0 0 24px rgba(74, 222, 128, 0.15), 0 8px 22px rgba(0, 0, 0, 0.5);
+}
+
+.card.locked .card-front {
+    background: #1e2f2a;
+    border-color: #4ade80;
+}
+
+.card.locked .card-front .lock-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #4ade80;
+    background: rgba(74, 222, 128, 0.12);
+    padding: 4px 14px;
+    border-radius: 40px;
+    margin-top: 6px;
+}
+
+.card.locked .card-front .card-number {
+    font-size: 42px;
+}
+
+.card-front .lock-badge {
+    display: none;
+}
+
+/* 卡片已淘汰 (游戏阶段) */
+.card.eliminated {
+    opacity: 0.35;
+    transform: scale(0.92);
+    cursor: not-allowed;
+    filter: grayscale(0.6);
+    border: 1px solid #5a3a3a;
+}
+
+.card.eliminated .card-front {
+    background: #2a1f1f;
+}
+
+.card.eliminated .card-front .eliminated-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: #f87171;
+    background: rgba(248, 113, 113, 0.12);
+    padding: 4px 14px;
+    border-radius: 40px;
+    margin-top: 4px;
+    font-weight: 500;
+}
+
+.card-front .eliminated-badge {
+    display: none;
+}
+
+/* 游戏阶段可点击的卡片 */
+.card.clickable-vote {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.card.clickable-vote:hover {
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: 0 16px 32px rgba(124, 92, 252, 0.2);
+    border-color: #7c5cfc;
+}
+
+.card.clickable-vote:active {
+    transform: translateY(-2px) scale(0.96);
+}
+
+/* ===== 卡片下方的按钮 ===== */
+.card-actions {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.btn-remember {
+    padding: 8px 20px;
+    border: none;
+    border-radius: 40px;
+    font-size: 13px;
+    font-weight: 500;
+    background: #2a2f4a;
+    color: #a8a0c2;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    border: 1px solid #3a3f5a;
+    width: 100%;
+    max-width: 120px;
+    text-align: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    touch-action: manipulation;
+}
+
+.btn-remember:hover:not(:disabled) {
+    background: #3a3f5a;
+    color: #4ade80;
+    border-color: #4ade80;
+}
+
+.btn-remember:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-remember.done {
+    background: #1e2f2a;
+    color: #4ade80;
+    border-color: #4ade80;
+    cursor: default;
+    opacity: 1;
+}
+
+/* ===== 游戏阶段 ===== */
+.phase-playing {
+    display: none;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.phase-playing.active {
+    display: flex;
+}
+
+.playing-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.playing-header .title {
+    color: #f0e9ff;
+    font-size: 20px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.playing-header .title i {
+    color: #fbbf24;
+}
+
+.playing-header .info {
+    color: #a8a0c2;
+    font-size: 14px;
+    background: #2a2f4a;
+    padding: 6px 18px;
+    border-radius: 40px;
+    border: 1px solid #3a3f5a;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.playing-header .info span {
+    color: #f0e9ff;
+    font-weight: 600;
+}
+
+.playing-hint {
+    color: #8a82aa;
+    font-size: 14px;
+    text-align: center;
+    padding: 4px 0 0;
+    letter-spacing: 0.3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.playing-hint strong {
+    color: #c4b5fd;
+    font-weight: 600;
+}
+
+/* ===== 消息提示 ===== */
+.message-box {
+    background: #2a2f4a;
+    border-radius: 16px;
+    padding: 14px 22px;
+    text-align: center;
+    border: 1px solid #3a3f5a;
+    color: #e8e0f8;
+    font-size: 17px;
+    font-weight: 500;
+    min-height: 58px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+}
+
+.message-box .highlight {
+    color: #fbbf24;
+    font-weight: 700;
+}
+
+.message-box .highlight.green {
+    color: #4ade80;
+}
+
+.message-box .highlight.red {
+    color: #f87171;
+}
+
+.message-box i {
+    font-size: 20px;
+    color: #7c5cfc;
+}
+
+/* ===== 游戏结束弹窗 ===== */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.78);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 20px;
+    animation: fadeIn 0.4s ease;
+}
+
+.modal-overlay.active {
+    display: flex;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.94);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.modal {
+    background: #1a1f35;
+    border-radius: 36px;
+    padding: 44px 40px 38px;
+    max-width: 520px;
+    width: 100%;
+    border: 1px solid #2a2f4a;
+    box-shadow: 0 48px 72px rgba(0, 0, 0, 0.8);
+    text-align: center;
+}
+
+.modal .result-icon {
+    font-size: 60px;
+    margin-bottom: 10px;
+    color: #fbbf24;
+}
+
+.modal .result-title {
+    font-size: 30px;
+    font-weight: 700;
+    color: #f0e9ff;
+    margin-bottom: 6px;
+}
+
+.modal .result-sub {
+    color: #a8a0c2;
+    font-size: 17px;
+    margin-bottom: 22px;
+}
+
+.modal .word-reveal {
+    display: flex;
+    justify-content: center;
+    gap: 36px;
+    margin: 18px 0 30px;
+    flex-wrap: wrap;
+}
+
+.modal .word-reveal .item {
+    background: #2a2f4a;
+    padding: 14px 26px;
+    border-radius: 16px;
+    border: 1px solid #3a3f5a;
+    min-width: 110px;
+}
+
+.modal .word-reveal .item .label {
+    font-size: 12px;
+    color: #8a82aa;
+    font-weight: 400;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.modal .word-reveal .item .label i {
+    font-size: 12px;
+}
+
+.modal .word-reveal .item .word {
+    font-size: 22px;
+    font-weight: 700;
+    color: #f0e9ff;
+    margin-top: 4px;
+}
+
+.modal .word-reveal .item .word.civilian {
+    color: #4ade80;
+}
+
+.modal .word-reveal .item .word.undercover {
+    color: #f87171;
+}
+
+.modal .btn-restart {
+    padding: 13px 44px;
+    border: none;
+    border-radius: 60px;
+    font-size: 17px;
+    font-weight: 600;
+    color: #fff;
+    background: #7c5cfc;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 24px rgba(92, 60, 220, 0.35);
+    margin-top: 4px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    touch-action: manipulation;
+}
+
+.modal .btn-restart:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(92, 60, 220, 0.5);
+}
+
+.modal .btn-restart:active {
+    transform: translateY(0);
+}
+
+/* ===== 隐藏辅助 ===== */
+.hidden {
+    display: none !important;
+}
+
+/* ============================================================ */
+/* ===== 响应式：平板 & 手机 ===== */
+/* ============================================================ */
+
+@media (max-width: 820px) {
+    .app {
+        padding: 22px 24px 28px;
+        border-radius: 32px;
+        min-height: auto;
+    }
+
+    .logo h1 {
+        font-size: 22px;
+    }
+
+    .logo-icon {
+        font-size: 26px;
+        width: 34px;
+    }
+
+    .card-wrapper {
+        width: 116px;
+        gap: 8px;
+    }
+
+    .card-container {
+        width: 116px;
+        height: 152px;
+    }
+
+    .card-front .card-number {
+        font-size: 44px;
+    }
+
+    .card-front .card-label {
+        font-size: 11px;
+    }
+
+    .card-back .word-text {
+        font-size: 20px;
+    }
+
+    .card.locked .card-front .card-number {
+        font-size: 36px;
+    }
+
+    .btn-remember {
+        font-size: 12px;
+        padding: 6px 16px;
+        max-width: 100px;
+    }
+
+    .card-grid {
+        gap: 18px;
+    }
+
+    .player-selector {
+        padding: 14px 26px;
+        gap: 20px;
+    }
+
+    .player-selector .count {
+        font-size: 40px;
+        min-width: 44px;
+    }
+
+    .player-selector button {
+        width: 42px;
+        height: 42px;
+        font-size: 22px;
+    }
+
+    .btn-primary {
+        padding: 13px 38px;
+        font-size: 17px;
+    }
+
+    .modal {
+        padding: 36px 28px 32px;
+    }
+
+    .modal .result-title {
+        font-size: 26px;
+    }
+
+    .modal .word-reveal {
+        gap: 24px;
+    }
+
+    .modal .word-reveal .item {
+        padding: 12px 20px;
+        min-width: 90px;
+    }
+
+    .modal .word-reveal .item .word {
+        font-size: 20px;
+    }
+
+    .view-header .title {
+        font-size: 18px;
+    }
+
+    .playing-header .title {
+        font-size: 18px;
+    }
+
+    .status-badge {
+        font-size: 13px;
+        padding: 6px 16px;
+    }
+
+    .message-box {
+        font-size: 16px;
+        padding: 12px 18px;
+        min-height: 52px;
+    }
+
+    .phase-select .subtitle {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 600px) {
+    .app {
+        padding: 16px 14px 22px;
+        border-radius: 24px;
+    }
+
+    .logo h1 {
+        font-size: 18px;
+    }
+
+    .logo-icon {
+        font-size: 20px;
+        width: 28px;
+    }
+
+    .status-badge {
+        font-size: 11px;
+        padding: 4px 12px;
+        gap: 6px;
+    }
+
+    .status-badge .dot {
+        width: 6px;
+        height: 6px;
+    }
+
+    .header {
+        margin-bottom: 18px;
+    }
+
+    .card-wrapper {
+        width: 98px;
+        gap: 6px;
+    }
+
+    .card-container {
+        width: 98px;
+        height: 130px;
+    }
+
+    .card-front .card-number {
+        font-size: 36px;
+    }
+
+    .card-front .card-label {
+        font-size: 10px;
+        margin-top: 2px;
+    }
+
+    .card-front .card-label i {
+        font-size: 11px;
+    }
+
+    .card-back .word-text {
+        font-size: 17px;
+    }
+
+    .card-back {
+        padding: 12px 10px;
+    }
+
+    .card.locked .card-front .card-number {
+        font-size: 30px;
+    }
+
+    .card.locked .card-front .lock-badge {
+        font-size: 10px;
+        padding: 3px 10px;
+        margin-top: 4px;
+    }
+
+    .card.eliminated .card-front .eliminated-badge {
+        font-size: 9px;
+        padding: 3px 10px;
+        margin-top: 2px;
+    }
+
+    .btn-remember {
+        font-size: 10px;
+        padding: 5px 12px;
+        max-width: 82px;
+        gap: 4px;
+    }
+
+    .card-grid {
+        gap: 12px;
+        padding: 4px 0;
+    }
+
+    .player-selector {
+        padding: 10px 18px;
+        gap: 14px;
+    }
+
+    .player-selector .count {
+        font-size: 32px;
+        min-width: 36px;
+    }
+
+    .player-selector button {
+        width: 36px;
+        height: 36px;
+        font-size: 18px;
+    }
+
+    .btn-primary {
+        padding: 11px 28px;
+        font-size: 15px;
+        gap: 8px;
+    }
+
+    .btn-secondary {
+        padding: 8px 18px;
+        font-size: 12px;
+    }
+
+    .phase-select .subtitle {
+        font-size: 14px;
+        gap: 8px;
+    }
+
+    .phase-select .subtitle i {
+        font-size: 16px;
+    }
+
+    .phase-select {
+        min-height: 280px;
+        gap: 22px;
+    }
+
+    .view-header .title {
+        font-size: 16px;
+        gap: 8px;
+    }
+
+    .view-header .title i {
+        font-size: 16px;
+    }
+
+    .view-header .progress {
+        font-size: 12px;
+        padding: 4px 12px;
+    }
+
+    .view-header {
+        margin-bottom: 4px;
+    }
+
+    .playing-header .title {
+        font-size: 16px;
+        gap: 8px;
+    }
+
+    .playing-header .title i {
+        font-size: 16px;
+    }
+
+    .playing-header .info {
+        font-size: 12px;
+        padding: 4px 12px;
+    }
+
+    .playing-hint {
+        font-size: 12px;
+        gap: 6px;
+    }
+
+    .message-box {
+        font-size: 14px;
+        padding: 10px 14px;
+        min-height: 46px;
+        gap: 8px;
+        border-radius: 12px;
+    }
+
+    .message-box i {
+        font-size: 16px;
+    }
+
+    .modal {
+        padding: 28px 18px 26px;
+        border-radius: 28px;
+    }
+
+    .modal .result-icon {
+        font-size: 44px;
+    }
+
+    .modal .result-title {
+        font-size: 22px;
+    }
+
+    .modal .result-sub {
+        font-size: 15px;
+        margin-bottom: 16px;
+    }
+
+    .modal .word-reveal {
+        gap: 16px;
+        margin: 12px 0 22px;
+    }
+
+    .modal .word-reveal .item {
+        padding: 10px 16px;
+        min-width: 72px;
+        border-radius: 12px;
+    }
+
+    .modal .word-reveal .item .label {
+        font-size: 10px;
+    }
+
+    .modal .word-reveal .item .label i {
+        font-size: 10px;
+    }
+
+    .modal .word-reveal .item .word {
+        font-size: 17px;
+    }
+
+    .modal .btn-restart {
+        padding: 11px 30px;
+        font-size: 15px;
+        gap: 8px;
+    }
+}
+
+@media (max-width: 420px) {
+    .app {
+        padding: 12px 10px 18px;
+        border-radius: 18px;
+    }
+
+    .logo h1 {
+        font-size: 15px;
+    }
+
+    .logo-icon {
+        font-size: 17px;
+        width: 24px;
+    }
+
+    .status-badge {
+        font-size: 10px;
+        padding: 3px 10px;
+        gap: 4px;
+    }
+
+    .status-badge .dot {
+        width: 5px;
+        height: 5px;
+    }
+
+    .card-wrapper {
+        width: 80px;
+        gap: 5px;
+    }
+
+    .card-container {
+        width: 80px;
+        height: 108px;
+    }
+
+    .card-front .card-number {
+        font-size: 30px;
+    }
+
+    .card-front .card-label {
+        font-size: 8px;
+        margin-top: 1px;
+    }
+
+    .card-front .card-label i {
+        font-size: 9px;
+    }
+
+    .card-back .word-text {
+        font-size: 14px;
+    }
+
+    .card-back {
+        padding: 10px 8px;
+        border-radius: 16px;
+    }
+
+    .card {
+        border-radius: 16px;
+    }
+
+    .card-face {
+        border-radius: 16px;
+    }
+
+    .card.locked .card-front .card-number {
+        font-size: 24px;
+    }
+
+    .card.locked .card-front .lock-badge {
+        font-size: 8px;
+        padding: 2px 8px;
+        margin-top: 2px;
+    }
+
+    .card.eliminated .card-front .eliminated-badge {
+        font-size: 8px;
+        padding: 2px 8px;
+        margin-top: 1px;
+    }
+
+    .btn-remember {
+        font-size: 9px;
+        padding: 4px 10px;
+        max-width: 68px;
+        border-radius: 30px;
+    }
+
+    .card-grid {
+        gap: 10px;
+    }
+
+    .player-selector {
+        padding: 8px 14px;
+        gap: 10px;
+        border-radius: 40px;
+    }
+
+    .player-selector .count {
+        font-size: 26px;
+        min-width: 28px;
+    }
+
+    .player-selector button {
+        width: 30px;
+        height: 30px;
+        font-size: 14px;
+    }
+
+    .btn-primary {
+        padding: 9px 20px;
+        font-size: 13px;
+        gap: 6px;
+        border-radius: 40px;
+    }
+
+    .btn-secondary {
+        padding: 6px 14px;
+        font-size: 11px;
+    }
+
+    .phase-select .subtitle {
+        font-size: 12px;
+    }
+
+    .phase-select .subtitle i {
+        font-size: 14px;
+    }
+
+    .phase-select {
+        min-height: 220px;
+        gap: 16px;
+    }
+
+    .view-header .title {
+        font-size: 13px;
+    }
+
+    .view-header .title i {
+        font-size: 13px;
+    }
+
+    .view-header .progress {
+        font-size: 10px;
+        padding: 3px 10px;
+    }
+
+    .phase-view {
+        gap: 14px;
+    }
+
+    .playing-header .title {
+        font-size: 13px;
+    }
+
+    .playing-header .title i {
+        font-size: 13px;
+    }
+
+    .playing-header .info {
+        font-size: 10px;
+        padding: 3px 10px;
+    }
+
+    .playing-hint {
+        font-size: 11px;
+    }
+
+    .phase-playing {
+        gap: 12px;
+    }
+
+    .message-box {
+        font-size: 12px;
+        padding: 8px 12px;
+        min-height: 38px;
+        border-radius: 10px;
+    }
+
+    .message-box i {
+        font-size: 13px;
+    }
+
+    .modal {
+        padding: 20px 14px 20px;
+        border-radius: 20px;
+    }
+
+    .modal .result-icon {
+        font-size: 36px;
+        margin-bottom: 6px;
+    }
+
+    .modal .result-title {
+        font-size: 18px;
+    }
+
+    .modal .result-sub {
+        font-size: 13px;
+        margin-bottom: 12px;
+    }
+
+    .modal .word-reveal {
+        gap: 12px;
+        margin: 8px 0 16px;
+    }
+
+    .modal .word-reveal .item {
+        padding: 8px 12px;
+        min-width: 60px;
+        border-radius: 10px;
+    }
+
+    .modal .word-reveal .item .label {
+        font-size: 9px;
+    }
+
+    .modal .word-reveal .item .label i {
+        font-size: 9px;
+    }
+
+    .modal .word-reveal .item .word {
+        font-size: 15px;
+    }
+
+    .modal .btn-restart {
+        padding: 9px 22px;
+        font-size: 13px;
+        gap: 6px;
+        border-radius: 40px;
+    }
+}
+
+/* ===== 非常小的屏幕 (如手表、小折叠) ===== */
+@media (max-width: 360px) {
+    .card-wrapper {
+        width: 68px;
+    }
+
+    .card-container {
+        width: 68px;
+        height: 92px;
+    }
+
+    .card-front .card-number {
+        font-size: 24px;
+    }
+
+    .card-back .word-text {
+        font-size: 12px;
+    }
+
+    .card-back {
+        padding: 8px 6px;
+    }
+
+    .card-grid {
+        gap: 8px;
+    }
+
+    .btn-remember {
+        font-size: 8px;
+        padding: 3px 8px;
+        max-width: 56px;
+    }
+
+    .card.locked .card-front .card-number {
+        font-size: 20px;
+    }
+
+    .card.locked .card-front .lock-badge {
+        font-size: 7px;
+        padding: 1px 6px;
+    }
+
+    .card.eliminated .card-front .eliminated-badge {
+        font-size: 7px;
+        padding: 1px 6px;
+    }
+
+    .player-selector .count {
+        font-size: 20px;
+        min-width: 22px;
+    }
+
+    .player-selector button {
+        width: 26px;
+        height: 26px;
+        font-size: 12px;
+    }
+
+    .player-selector {
+        padding: 6px 10px;
+        gap: 8px;
+    }
+
+    .btn-primary {
+        padding: 8px 16px;
+        font-size: 12px;
+    }
+
+    .logo h1 {
+        font-size: 13px;
+    }
+
+    .logo-icon {
+        font-size: 14px;
+        width: 20px;
+    }
+
+    .status-badge {
+        font-size: 9px;
+        padding: 2px 8px;
+    }
+
+    .app {
+        padding: 10px 8px 14px;
+        border-radius: 14px;
+    }
+}
