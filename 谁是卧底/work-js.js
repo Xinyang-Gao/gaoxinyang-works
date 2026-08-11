@@ -1,4 +1,3 @@
-//  词条库
 const WORD_PAIRS = [
     { civilian: '苹果', undercover: '梨子' },
     { civilian: '篮球', undercover: '排球' },
@@ -32,11 +31,11 @@ const WORD_PAIRS = [
     { civilian: '项链', undercover: '手链' },
 ];
 
-//  游戏状态
+// ---------- 游戏状态 ----------
 const state = {
-    phase: 'select', // 'select' | 'view' | 'playing' | 'over'
+    phase: 'select',
     playerCount: 5,
-    players: [], // { id, word, isUndercover, isLocked, isEliminated }
+    players: [],
     undercoverIndex: -1,
     civilianWord: '',
     undercoverWord: '',
@@ -45,7 +44,7 @@ const state = {
     gameOver: false,
 };
 
-//  DOM 引用
+// ---------- DOM 引用 ----------
 const $ = (id) => document.getElementById(id);
 const phaseSelect = $('phaseSelect');
 const phaseView = $('phaseView');
@@ -75,7 +74,7 @@ const revealCivilian = $('revealCivilian');
 const revealUndercover = $('revealUndercover');
 const restartBtn = $('restartBtn');
 
-//  工具函数
+// ---------- 工具 ----------
 function shuffleArray(arr) {
     for (let i = arr.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -88,7 +87,7 @@ function pickRandom(arr) {
     return arr[Math.floor(Math.random() * arr.length)];
 }
 
-//  游戏逻辑
+// ---------- 游戏逻辑 ----------
 function initGame() {
     const n = state.playerCount;
     const pair = pickRandom(WORD_PAIRS);
@@ -158,7 +157,7 @@ function endGame(winner, reason) {
     updateStatus('游戏结束', false);
 }
 
-//  渲染：查看词条卡片
+// ---------- 渲染：查看词条 ----------
 function renderViewCards() {
     viewCardGrid.innerHTML = '';
     const n = state.players.length;
@@ -175,28 +174,25 @@ function renderViewCards() {
         card.className = 'card';
         card.dataset.index = index;
 
-        // 正面
         const front = document.createElement('div');
         front.className = 'card-face card-front';
         front.innerHTML = `
-                        <div class="card-number">${index + 1}</div>
-                        <div class="card-label"><i class="fas fa-user"></i> 玩家</div>
-                        <div class="lock-badge"><i class="fas fa-check-circle"></i> 已记住</div>
-                        <div class="eliminated-badge"><i class="fas fa-times-circle"></i> 已淘汰</div>
-                    `;
+                                <div class="card-number">${index + 1}</div>
+                                <div class="card-label"><i class="fas fa-user"></i> 玩家</div>
+                                <div class="lock-badge"><i class="fas fa-check-circle"></i> 已记住</div>
+                                <div class="eliminated-badge"><i class="fas fa-times-circle"></i> 已淘汰</div>
+                            `;
 
-        // 反面 - 只显示词条
         const back = document.createElement('div');
         back.className = 'card-face card-back';
         back.innerHTML = `
-                        <div class="word-text">${player.word}</div>
-                    `;
+                                <div class="word-text">${player.word}</div>
+                            `;
 
         card.appendChild(front);
         card.appendChild(back);
         container.appendChild(card);
 
-        // 记住按钮
         const actions = document.createElement('div');
         actions.className = 'card-actions';
         const btn = document.createElement('button');
@@ -213,12 +209,9 @@ function renderViewCards() {
         wrapper.appendChild(actions);
         viewCardGrid.appendChild(wrapper);
 
-        // 点击卡片翻转
         card.addEventListener('click', () => {
             if (player.isLocked) return;
-            if (card.classList.contains('flipped')) {
-                // 已翻转则不做额外操作
-            } else {
+            if (!card.classList.contains('flipped')) {
                 card.classList.add('flipped');
                 clearTimeout(card._flipTimer);
                 card._flipTimer = setTimeout(() => {
@@ -238,7 +231,7 @@ function renderViewCards() {
     updateRememberedCount();
 }
 
-//  渲染：游戏阶段卡片
+// ---------- 渲染：游戏阶段 ----------
 function renderPlayCards() {
     playCardGrid.innerHTML = '';
     const alive = state.players.filter(p => !p.isEliminated);
@@ -271,9 +264,9 @@ function renderPlayCards() {
             badgeHtml = `<div class="card-label"><i class="fas fa-hand-pointer"></i> 点击投票</div>`;
         }
         front.innerHTML = `
-                        <div class="card-number">${index + 1}</div>
-                        ${badgeHtml}
-                    `;
+                                <div class="card-number">${index + 1}</div>
+                                ${badgeHtml}
+                            `;
 
         card.appendChild(front);
         container.appendChild(card);
@@ -288,7 +281,7 @@ function renderPlayCards() {
     });
 }
 
-//  交互处理
+// ---------- 交互 ----------
 function handleRemember(index) {
     const player = state.players[index];
     if (player.isLocked) return;
@@ -347,14 +340,13 @@ function handleVote(index) {
     }
 }
 
-//  UI 更新
+// ---------- UI 更新 ----------
 function updateRememberedCount() {
     rememberedCount.textContent = state.rememberedCount;
 }
 
 function updateMessage(msg) {
     state.message = msg;
-    // 保留图标，替换文本
     const icon = messageBox.querySelector('i');
     if (icon) {
         messageBox.innerHTML = '';
@@ -375,7 +367,7 @@ function updateStatus(text, active) {
     }
 }
 
-//  人数选择
+// ---------- 人数选择 ----------
 function updatePlayerCountDisplay() {
     playerCountDisplay.textContent = state.playerCount;
 }
@@ -394,13 +386,11 @@ incrementBtn.addEventListener('click', () => {
     }
 });
 
-//  开始游戏
 startGameBtn.addEventListener('click', () => {
     initGame();
     startViewPhase();
 });
 
-//  重新开始
 restartBtn.addEventListener('click', () => {
     modalOverlay.classList.remove('active');
     state.phase = 'select';
@@ -415,11 +405,7 @@ restartBtn.addEventListener('click', () => {
     messageBox.innerHTML = '<i class="fas fa-comment-dots"></i> 点击编号投票淘汰卧底';
 });
 
-//  初始状态
-updatePlayerCountDisplay();
-updateStatus('选择人数', false);
-
-// 键盘快捷键
+// ---------- 键盘快捷键 ----------
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
         if (state.phase === 'select') {
@@ -433,5 +419,6 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-console.log('谁是卧底游戏已加载！');
-console.log(`词条库共 ${WORD_PAIRS.length} 组`);
+// ---------- 初始化 ----------
+updatePlayerCountDisplay();
+updateStatus('选择人数', false);
