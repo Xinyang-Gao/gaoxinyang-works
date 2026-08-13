@@ -3,12 +3,11 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Pixiv 图片查询</title>
+    <title>Pixiv 图集查询 · 流式加载</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <style>
         :root {
             color-scheme: dark;
-
             --bg-color: #101015;
             --surface-color: #17171e;
             --surface-color-secondary: #1d1d26;
@@ -23,28 +22,23 @@
             --shadow-color: rgba(0, 0, 0, 0.5);
             --shadow-color-dark: rgba(0, 0, 0, 0.7);
             --shadow-color-offset: rgba(var(--accent-rgb), 0.1);
-
             --font-display: "Avenir Next", "Futura", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
             --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
             --font-mono: "SF Mono", "Fira Code", "Consolas", monospace;
-
             --radius-sm: 6px;
             --radius-md: 10px;
             --radius-lg: 14px;
             --radius-xl: 18px;
             --radius-full: 9999px;
-
             --shadow-sm: 0 1px 3px var(--shadow-color);
             --shadow-md: 0 6px 18px var(--shadow-color);
             --shadow-lg: 0 16px 32px -8px var(--shadow-color-dark);
             --shadow-offset: 6px 6px 0 -2px var(--shadow-color-offset);
             --shadow-hover: 0 18px 30px -12px var(--shadow-color-dark);
-
             --transition-fast: 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
             --transition-normal: 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
             --transition-bounce: cubic-bezier(0.34, 1.2, 0.64, 1);
-
-            --container-max-width: 780px;
+            --container-max-width: 860px;
             --container-padding: 28px;
         }
 
@@ -93,13 +87,11 @@
             background: var(--bg-color);
         }
 
-        /* ---------- 选中文本 ---------- */
         ::selection {
             background: var(--accent-color);
             color: #fff;
         }
 
-        /* ---------- 焦点环 ---------- */
         :focus-visible {
             outline: none;
             box-shadow: 0 0 0 4px rgba(var(--accent-rgb), 0.18);
@@ -114,9 +106,7 @@
             border-radius: var(--radius-xl);
             box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.03), var(--shadow-md), var(--shadow-offset);
             padding: var(--container-padding);
-            transition: background-color var(--transition-normal),
-                border-color var(--transition-normal),
-                box-shadow var(--transition-normal);
+            transition: background-color var(--transition-normal), border-color var(--transition-normal), box-shadow var(--transition-normal);
             opacity: 0;
             animation: fadeIn 0.5s ease forwards;
         }
@@ -160,11 +150,6 @@
             letter-spacing: -0.02em;
             color: var(--text-color);
             margin: 0 0 4px 0;
-        }
-
-        .app-header h1 i {
-            color: var(--accent-color);
-            margin-right: 6px;
         }
 
         .app-header .subtitle {
@@ -223,9 +208,7 @@
             font-family: var(--font-sans);
             font-size: 0.95rem;
             color: var(--text-color);
-            transition: border-color var(--transition-fast),
-                box-shadow var(--transition-fast),
-                background var(--transition-fast);
+            transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
         }
 
         .input-group input::placeholder {
@@ -244,74 +227,6 @@
             border-color: var(--accent-light);
         }
 
-        /* ---------- 序号控制（输入框 + 按钮） ---------- */
-        .input-group.seq-input {
-            flex: 0 1 160px;
-            min-width: 140px;
-        }
-
-        .seq-control {
-            display: flex;
-            align-items: center;
-            background: var(--surface-color-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-md);
-            padding: 2px;
-            transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
-        }
-        .seq-control:focus-within {
-            border-color: var(--accent-color);
-            box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.12);
-        }
-
-        .seq-control input {
-            width: 48px;
-            padding: 8px 2px;
-            text-align: center;
-            background: transparent;
-            border: none;
-            color: var(--text-color);
-            font-size: 0.95rem;
-            -moz-appearance: textfield;
-            flex: 1;
-        }
-        .seq-control input::-webkit-outer-spin-button,
-        .seq-control input::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-        .seq-control input:focus {
-            box-shadow: none;
-            background: transparent;
-        }
-
-        .seq-btn {
-            background: transparent;
-            border: none;
-            color: var(--text-secondary);
-            padding: 6px 8px;
-            border-radius: var(--radius-sm);
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: all var(--transition-fast);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-width: 30px;
-            user-select: none;
-        }
-        .seq-btn:hover {
-            background: rgba(var(--accent-rgb), 0.12);
-            color: var(--accent-color);
-        }
-        .seq-btn:active {
-            transform: scale(0.92);
-        }
-        .seq-btn i {
-            font-size: 0.8rem;
-        }
-
-        /* ---------- 格式选择 + 查询按钮 ---------- */
         .action-row {
             display: flex;
             flex-wrap: wrap;
@@ -359,9 +274,7 @@
             margin: 0;
             position: relative;
             cursor: pointer;
-            transition: border-color var(--transition-fast),
-                background var(--transition-fast),
-                box-shadow var(--transition-fast);
+            transition: border-color var(--transition-fast), background var(--transition-fast), box-shadow var(--transition-fast);
             flex-shrink: 0;
         }
 
@@ -383,15 +296,6 @@
             border-radius: 50%;
         }
 
-        .format-option input[type="radio"]:focus-visible {
-            box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.2);
-        }
-
-        .format-option .ext {
-            font-weight: 500;
-        }
-
-        /* ---------- 查询按钮 ---------- */
         .btn-query {
             display: inline-flex;
             align-items: center;
@@ -406,9 +310,7 @@
             font-size: 0.95rem;
             font-weight: 600;
             cursor: pointer;
-            transition: transform var(--transition-fast),
-                background var(--transition-fast),
-                box-shadow var(--transition-fast);
+            transition: transform var(--transition-fast), background var(--transition-fast), box-shadow var(--transition-fast);
             box-shadow: 0 4px 14px rgba(var(--accent-rgb), 0.25);
             margin-left: auto;
             flex-shrink: 0;
@@ -428,6 +330,7 @@
             font-size: 0.9rem;
         }
 
+        /* ========== 图集展示区域 ========== */
         .image-section {
             margin: 18px 0 14px 0;
             border-radius: var(--radius-lg);
@@ -436,48 +339,26 @@
             border: 1px solid var(--border-color);
             min-height: 120px;
             display: flex;
-            align-items: center;
-            justify-content: center;
+            flex-direction: column;
             position: relative;
             transition: border-color var(--transition-normal);
         }
 
-        .image-section .image-wrapper {
-            width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 16px;
-        }
-
-        .image-section img {
-            max-width: 100%;
-            max-height: 70vh;
-            border-radius: var(--radius-md);
-            display: block;
-            box-shadow: var(--shadow-sm);
-            transition: opacity 0.4s ease, transform 0.4s var(--transition-bounce);
-            opacity: 0;
-            transform: scale(0.96);
-        }
-
-        .image-section img.loaded {
-            opacity: 1;
-            transform: scale(1);
-        }
-
-        .image-section .placeholder {
-            color: var(--text-secondary);
-            font-size: 0.95rem;
+        .image-section .placeholder,
+        .image-section .loading-state,
+        .image-section .error-state {
             padding: 32px 20px;
             text-align: center;
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 10px;
+            flex: 1;
+            justify-content: center;
         }
 
-        .image-section .placeholder i {
+        .image-section .placeholder i,
+        .image-section .error-state i {
             font-size: 2.6rem;
             color: var(--accent-color);
             opacity: 0.4;
@@ -486,16 +367,6 @@
         .image-section .placeholder .hint {
             font-size: 0.85rem;
             opacity: 0.7;
-        }
-
-        /* 加载状态 */
-        .image-section .loading-state {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            gap: 12px;
-            padding: 32px 20px;
-            color: var(--text-secondary);
         }
 
         .image-section .loading-state .spinner {
@@ -515,27 +386,11 @@
 
         .image-section .loading-state .loading-text {
             font-size: 0.9rem;
+            color: var(--text-secondary);
         }
 
-        /* 错误状态 */
         .image-section .error-state {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-            padding: 32px 20px;
             color: #e05a50;
-        }
-
-        .image-section .error-state i {
-            font-size: 2.2rem;
-            opacity: 0.7;
-        }
-
-        .image-section .error-state .error-text {
-            font-size: 0.95rem;
-            text-align: center;
-            max-width: 360px;
         }
 
         .image-section .error-state .error-detail {
@@ -546,262 +401,230 @@
             opacity: 0.7;
         }
 
-        .history-section {
-            margin: 18px 0 12px 0;
-            padding: 14px 0 6px 0;
-            border-top: 1px solid var(--border-light);
-            transition: opacity var(--transition-normal);
+        /* 图集视图 */
+        .gallery-view {
+            display: none;
+            flex-direction: column;
+            width: 100%;
         }
 
-        .history-header {
+        .gallery-main {
+            position: relative;
+            background: var(--bg-color);
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 16px 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .main-image-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            margin-bottom: 12px;
-            padding: 0 4px;
+            justify-content: center;
         }
 
-        .history-title {
+        .main-image-container img {
+            max-width: 100%;
+            max-height: 60vh;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            opacity: 0;
+            transform: scale(0.96);
+            transition: opacity 0.4s ease, transform 0.4s var(--transition-bounce);
+        }
+
+        .main-image-container img.loaded {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid var(--border-color);
+            color: #fff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition-fast);
+            backdrop-filter: blur(4px);
+            z-index: 5;
+        }
+
+        .nav-btn:hover {
+            background: rgba(var(--accent-rgb), 0.3);
+            border-color: var(--accent-color);
+        }
+
+        .nav-btn:active {
+            transform: translateY(-50%) scale(0.92);
+        }
+
+        .prev-btn {
+            left: 10px;
+        }
+
+        .next-btn {
+            right: 10px;
+        }
+
+        .image-counter {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: #fff;
+            padding: 2px 12px;
+            border-radius: var(--radius-full);
+            font-size: 0.8rem;
+            backdrop-filter: blur(4px);
+            letter-spacing: 0.05em;
+        }
+
+        .main-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn-download,
+        .btn-download-all {
+            padding: 8px 20px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+            background: var(--surface-color);
+            color: var(--text-color);
+            font-family: var(--font-sans);
             font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--text-secondary);
-            display: flex;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            display: inline-flex;
             align-items: center;
-            gap: 8px;
-            letter-spacing: 0.02em;
-        }
-
-        .history-title i {
-            color: var(--accent-color);
-            opacity: 0.6;
-            font-size: 0.9rem;
-        }
-
-        .history-title .count {
-            font-weight: 400;
-            font-size: 0.7rem;
-            color: var(--text-secondary);
-            opacity: 0.6;
-            margin-left: 2px;
-        }
-
-        .history-actions {
-            display: flex;
             gap: 6px;
         }
 
-        .history-clear {
-            background: transparent;
-            border: none;
-            color: var(--text-secondary);
-            font-size: 0.75rem;
-            padding: 4px 10px;
-            border-radius: var(--radius-sm);
-            cursor: pointer;
-            transition: all var(--transition-fast);
+        .btn-download:hover,
+        .btn-download-all:hover {
+            background: rgba(var(--accent-rgb), 0.12);
+            border-color: var(--accent-color);
+            color: var(--accent-light);
+            transform: translateY(-1px);
+        }
+
+        .btn-download i,
+        .btn-download-all i {
+            font-size: 0.9rem;
+        }
+
+        /* 加载更多指示器 */
+        .gallery-loading {
             display: flex;
             align-items: center;
-            gap: 4px;
-            font-family: var(--font-sans);
-            opacity: 0.6;
-        }
-
-        .history-clear:hover {
-            background: rgba(224, 90, 80, 0.12);
-            color: #e05a50;
-            opacity: 1;
-        }
-
-        .history-clear i {
-            font-size: 0.7rem;
-        }
-
-        /* 历史滚动容器 */
-        .history-scroll {
-            display: flex;
-            gap: 12px;
-            overflow-x: auto;
-            padding: 4px 4px 12px 4px;
-            scroll-behavior: smooth;
-            -webkit-overflow-scrolling: touch;
-            scrollbar-width: thin;
-        }
-
-        .history-scroll::-webkit-scrollbar {
-            height: 4px;
-        }
-        .history-scroll::-webkit-scrollbar-track {
-            background: var(--bg-color);
-            border-radius: var(--radius-full);
-        }
-        .history-scroll::-webkit-scrollbar-thumb {
-            background: var(--border-color);
-            border-radius: var(--radius-full);
-        }
-        .history-scroll::-webkit-scrollbar-thumb:hover {
-            background: var(--accent-color);
-        }
-
-        /* 空状态 */
-        .history-empty {
-            flex: 1;
-            text-align: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 16px;
+            background: rgba(0, 0, 0, 0.25);
             color: var(--text-secondary);
-            font-size: 0.82rem;
-            padding: 16px 0;
-            opacity: 0.5;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
+            font-size: 0.85rem;
+            border-bottom: 1px solid var(--border-light);
         }
 
-        .history-empty i {
-            font-size: 1.4rem;
-            opacity: 0.4;
+        .gallery-loading i {
+            font-size: 0.9rem;
             color: var(--accent-color);
         }
 
-        /* 历史卡片 */
-        .history-card {
-            flex: 0 0 96px;
-            width: 96px;
-            background: var(--surface-color-secondary);
-            border: 2px solid var(--border-color);
-            border-radius: var(--radius-md);
+        .gallery-thumbs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 16px;
+            justify-content: center;
+            overflow-y: auto;
+            max-height: 200px;
+        }
+
+        .thumb-item {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            border-radius: var(--radius-sm);
             overflow: hidden;
+            border: 2px solid var(--border-color);
             cursor: pointer;
             transition: all var(--transition-fast);
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .history-card:hover {
-            border-color: var(--accent-color);
-            transform: translateY(-3px) scale(1.02);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
-        }
-
-        .history-card:active {
-            transform: scale(0.95);
-        }
-
-        .history-card.active {
-            border-color: var(--accent-color);
-            box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.2), var(--shadow-sm);
-        }
-
-        .history-card .thumb-wrap {
-            width: 100%;
-            height: 72px;
             background: var(--bg-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            position: relative;
             flex-shrink: 0;
         }
 
-        .history-card .thumb-wrap img {
+        .thumb-item:hover {
+            border-color: var(--accent-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .thumb-item.active {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.25);
+        }
+
+        .thumb-item img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: opacity 0.3s ease;
             display: block;
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
-        .history-card .thumb-wrap img.loaded {
+        .thumb-item img.loaded {
             opacity: 1;
         }
 
-        .history-card .thumb-wrap .thumb-placeholder {
-            color: var(--text-secondary);
-            font-size: 1.6rem;
-            opacity: 0.25;
+        .thumb-download {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-
-        .history-card .card-info {
-            padding: 4px 6px 6px 6px;
-            text-align: center;
-            font-size: 0.6rem;
-            line-height: 1.4;
-            color: var(--text-secondary);
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            min-height: 32px;
-            background: rgba(0, 0, 0, 0.2);
-        }
-
-        .history-card .card-info .card-pid {
-            font-weight: 600;
-            color: var(--text-color);
-            font-size: 0.65rem;
-            letter-spacing: 0.01em;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .history-card .card-info .card-seq {
-            font-size: 0.55rem;
-            opacity: 0.7;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 4px;
-        }
-
-        .history-card .card-info .card-seq i {
-            font-size: 0.45rem;
-            opacity: 0.5;
-        }
-
-        .history-card .card-info .card-format {
-            font-size: 0.5rem;
-            opacity: 0.5;
-            text-transform: uppercase;
-            margin-top: 1px;
-        }
-
-        /* 卡片删除按钮（悬停显示） */
-        .history-card .card-remove {
-            position: absolute;
-            top: 2px;
-            right: 2px;
+            top: 4px;
+            right: 4px;
+            width: 22px;
+            height: 22px;
             background: rgba(0, 0, 0, 0.7);
             border: none;
-            color: #e05a50;
-            width: 18px;
-            height: 18px;
             border-radius: 50%;
+            color: #fff;
+            font-size: 0.6rem;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            font-size: 0.5rem;
             opacity: 0;
-            transition: opacity var(--transition-fast), transform var(--transition-fast);
-            padding: 0;
-            backdrop-filter: blur(4px);
+            transition: opacity var(--transition-fast);
+            backdrop-filter: blur(2px);
         }
 
-        .history-card:hover .card-remove {
-            opacity: 0.8;
+        .thumb-item:hover .thumb-download {
+            opacity: 0.85;
         }
 
-        .history-card .card-remove:hover {
-            opacity: 1;
-            transform: scale(1.15);
-            background: rgba(224, 90, 80, 0.3);
+        .thumb-download:hover {
+            opacity: 1 !important;
+            background: var(--accent-color);
         }
 
         .footer-info {
@@ -859,10 +682,6 @@
                 flex: 1 1 auto;
                 min-width: unset;
             }
-            .input-group.seq-input {
-                flex: 1 1 auto;
-                min-width: unset;
-            }
 
             .action-row {
                 flex-direction: column;
@@ -878,8 +697,28 @@
                 padding: 12px;
             }
 
-            .image-section img {
-                max-height: 50vh;
+            .main-image-container img {
+                max-height: 40vh;
+            }
+
+            .gallery-thumbs {
+                max-height: 160px;
+                padding: 10px;
+            }
+            .thumb-item {
+                width: 80px;
+                height: 80px;
+            }
+
+            .nav-btn {
+                width: 34px;
+                height: 34px;
+            }
+
+            .btn-download,
+            .btn-download-all {
+                padding: 6px 14px;
+                font-size: 0.8rem;
             }
 
             .footer-info {
@@ -889,30 +728,12 @@
             .footer-info .tips {
                 justify-content: center;
             }
-
-            .history-card {
-                flex: 0 0 80px;
-                width: 80px;
-            }
-            .history-card .thumb-wrap {
-                height: 60px;
-            }
-            .history-card .card-info {
-                font-size: 0.5rem;
-                min-height: 28px;
-                padding: 3px 4px 4px 4px;
-            }
-            .history-card .card-info .card-pid {
-                font-size: 0.55rem;
-            }
-            .history-card .card-info .card-seq {
-                font-size: 0.45rem;
-            }
         }
 
         @media (min-width: 581px) and (max-width: 768px) {
-            .input-group.seq-input {
-                flex: 0 1 160px;
+            .thumb-item {
+                width: 90px;
+                height: 90px;
             }
         }
 
@@ -928,16 +749,12 @@
                 padding: 12px 36px;
                 font-size: 1rem;
             }
-            .history-card {
-                flex: 0 0 110px;
+            .thumb-item {
                 width: 110px;
-            }
-            .history-card .thumb-wrap {
-                height: 82px;
+                height: 110px;
             }
         }
 
-        /* ---------- 减少动画偏好 ---------- */
         @media (prefers-reduced-motion: reduce) {
             *,
             *::before,
@@ -964,17 +781,14 @@
 <body>
 
     <main class="container" role="main">
-        <!-- 头部 -->
         <header class="app-header">
-            <h1>Pixiv 图片查询</h1>
-            <p class="subtitle">输入作品 ID，使用序号切换多图</p>
+            <h1>Pixiv 图集查询</h1>
+            <p class="subtitle">输入作品 ID，边加载边预览，支持批量下载</p>
         </header>
 
-        <!-- 搜索区域 -->
         <section class="search-section" aria-label="图片查询表单">
             <form id="searchForm" autocomplete="off" novalidate>
                 <div class="input-row">
-                    <!-- 作品 ID -->
                     <div class="input-group">
                         <label for="pidInput"><i class="fas fa-hashtag" style="margin-right:4px;"></i> 作品 ID</label>
                         <div class="input-wrap">
@@ -988,31 +802,9 @@
                             />
                         </div>
                     </div>
-
-                    <!-- 图片序号（含切换按钮） -->
-                    <div class="input-group seq-input">
-                        <label for="seqInput"><i class="fas fa-layer-group"></i> 第几张</label>
-                        <div class="seq-control">
-                            <button type="button" class="seq-btn" id="seqDec" aria-label="上一张">
-                                <i class="fas fa-chevron-left"></i>
-                            </button>
-                            <input
-                            type="number"
-                            id="seqInput"
-                            placeholder="1"
-                            min="1"
-                            step="1"
-                            value="1"
-                            />
-                            <button type="button" class="seq-btn" id="seqInc" aria-label="下一张">
-                                <i class="fas fa-chevron-right"></i>
-                            </button>
-                        </div>
-                    </div>
                 </div>
 
                 <div class="action-row">
-                    <!-- 图片格式 -->
                     <div class="format-group" role="radiogroup" aria-label="图片格式">
                         <span class="format-label"><i class="far fa-file-image"></i> 格式</span>
                         <label class="format-option">
@@ -1030,72 +822,64 @@
                     </div>
 
                     <button type="submit" class="btn-query" id="queryBtn">
-                        <i class="fas fa-search"></i> 查询
+                        <i class="fas fa-images"></i> 获取图集
                     </button>
                 </div>
             </form>
         </section>
 
-        <!-- 图片展示 -->
-        <section class="image-section" id="imageSection" aria-label="图片展示">
-            <!-- 占位 -->
+        <section class="image-section" id="imageSection" aria-label="图集展示">
             <div class="placeholder" id="placeholder">
                 <i class="fas fa-image"></i>
-                <span>输入作品 ID 后点击查询</span>
-                <span class="hint">支持 png / jpg / gif 格式</span>
+                <span>输入作品 ID 后点击获取图集</span>
+                <span class="hint">自动侦测全部图片，支持 png / jpg / gif</span>
             </div>
 
-            <!-- 加载中 -->
             <div class="loading-state" id="loadingState">
                 <div class="spinner" role="status"></div>
-                <span class="loading-text">加载中…</span>
+                <span class="loading-text" id="loadingText">正在侦测图集…</span>
             </div>
 
-            <!-- 错误 -->
             <div class="error-state" id="errorState">
                 <i class="fas fa-exclamation-triangle"></i>
-                <span class="error-text" id="errorText">图片加载失败</span>
+                <span class="error-text" id="errorText">图集加载失败</span>
                 <span class="error-detail" id="errorDetail"></span>
             </div>
 
-            <!-- 图片 -->
-            <div class="image-wrapper" id="imageWrapper" style="display:none;">
-                <img id="resultImage" src="" alt="Pixiv 图片" />
+            <div class="gallery-view" id="galleryView" style="display:none;">
+                <div class="gallery-main">
+                    <div class="main-image-container">
+                        <img id="mainImage" src="" alt="Pixiv 图片" />
+                        <button class="nav-btn prev-btn" id="prevBtn" aria-label="上一张">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button class="nav-btn next-btn" id="nextBtn" aria-label="下一张">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                        <div class="image-counter" id="imageCounter">0 / 0</div>
+                    </div>
+                    <div class="main-actions">
+                        <button class="btn-download" id="downloadCurrentBtn">
+                            <i class="fas fa-download"></i> 下载当前
+                        </button>
+                        <button class="btn-download-all" id="downloadAllBtn">
+                            <i class="fas fa-file-archive"></i> 下载全部
+                        </button>
+                    </div>
+                </div>
+                <div class="gallery-loading" id="galleryLoading" style="display:none;">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <span id="galleryLoadingText">正在加载更多图片…</span>
+                </div>
+                <div class="gallery-thumbs" id="galleryThumbs"></div>
             </div>
         </section>
 
-        <!-- ==========================================
-        历史记录窗格 (新增)
-        ========================================== -->
-        <section class="history-section" id="historySection" aria-label="历史记录">
-            <div class="history-header">
-                <span class="history-title">
-                    <i class="fas fa-clock-rotate-left"></i> 历史记录
-                    <span class="count" id="historyCount">(0)</span>
-                </span>
-                <div class="history-actions">
-                    <button type="button" class="history-clear" id="clearHistory" title="清空所有历史记录">
-                        <i class="fas fa-trash-alt"></i> 清空
-                    </button>
-                </div>
-            </div>
-            <div class="history-scroll" id="historyScroll">
-                <!-- 空状态 -->
-                <div class="history-empty" id="historyEmpty">
-                    <i class="fas fa-images"></i>
-                    <span>暂无历史记录</span>
-                    <span style="font-size:0.7rem;opacity:0.6;">查询图片后将自动记录</span>
-                </div>
-                <!-- 动态卡片由 JS 渲染 -->
-            </div>
-        </section>
-
-        <!-- 底部信息 -->
         <footer class="footer-info">
             <div class="tips">
-                <span><i class="fas fa-info-circle"></i> 多图作品使用序号切换</span>
+                <span><i class="fas fa-info-circle"></i> 自动侦测作品全部图片</span>
                 <span><i class="fas fa-code"></i> 服务: pixiv.re</span>
-                <span><i class="fas fa-clock"></i> 历史记录保存最近 20 张</span>
+                <span><i class="fas fa-download"></i> 支持单张或批量下载</span>
             </div>
         </footer>
     </main>
@@ -1106,25 +890,27 @@
 
             const form = document.getElementById('searchForm');
             const pidInput = document.getElementById('pidInput');
-            const seqInput = document.getElementById('seqInput');
             const queryBtn = document.getElementById('queryBtn');
             const placeholder = document.getElementById('placeholder');
             const loadingState = document.getElementById('loadingState');
+            const loadingText = document.getElementById('loadingText');
             const errorState = document.getElementById('errorState');
             const errorText = document.getElementById('errorText');
             const errorDetail = document.getElementById('errorDetail');
-            const imageWrapper = document.getElementById('imageWrapper');
-            const resultImage = document.getElementById('resultImage');
+            const galleryView = document.getElementById('galleryView');
+            const mainImage = document.getElementById('mainImage');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const imageCounter = document.getElementById('imageCounter');
+            const downloadCurrentBtn = document.getElementById('downloadCurrentBtn');
+            const downloadAllBtn = document.getElementById('downloadAllBtn');
+            const galleryThumbs = document.getElementById('galleryThumbs');
+            const galleryLoading = document.getElementById('galleryLoading');
+            const galleryLoadingText = document.getElementById('galleryLoadingText');
 
-            // 历史记录 DOM
-            const historyScroll = document.getElementById('historyScroll');
-            const historyEmpty = document.getElementById('historyEmpty');
-            const historyCount = document.getElementById('historyCount');
-            const clearHistoryBtn = document.getElementById('clearHistory');
-
-            let historyItems = [];
-            const MAX_HISTORY = 20;
-            let currentDisplayKey = ''; // 用于高亮当前显示的图片
+            let currentImages = [];
+            let currentIndex = 0;
+            let isLoading = false;
 
             function getSelectedFormat() {
                 const radios = document.querySelectorAll('input[name="imgFormat"]');
@@ -1134,226 +920,295 @@
                 return 'png';
             }
 
-            function generateKey(pid, seq) {
-                return pid + '|' + seq;
-            }
-
             function resetStates() {
                 placeholder.style.display = 'flex';
                 loadingState.style.display = 'none';
                 errorState.style.display = 'none';
-                imageWrapper.style.display = 'none';
-                resultImage.classList.remove('loaded');
-                resultImage.src = '';
-                resultImage.alt = '';
+                galleryView.style.display = 'none';
+                galleryLoading.style.display = 'none';
+                mainImage.classList.remove('loaded');
+                mainImage.src = '';
+                mainImage.alt = '';
+                galleryThumbs.innerHTML = '';
+                currentImages = [];
+                currentIndex = 0;
+                imageCounter.textContent = '0 / 0';
             }
 
-            function showLoading() {
+            function showLoading(message) {
                 placeholder.style.display = 'none';
                 loadingState.style.display = 'flex';
                 errorState.style.display = 'none';
-                imageWrapper.style.display = 'none';
+                galleryView.style.display = 'none';
+                galleryLoading.style.display = 'none';
+                loadingText.textContent = message || '加载中…';
             }
 
             function showError(message, detail) {
                 placeholder.style.display = 'none';
                 loadingState.style.display = 'none';
                 errorState.style.display = 'flex';
-                imageWrapper.style.display = 'none';
-                errorText.textContent = message || '图片加载失败';
+                galleryView.style.display = 'none';
+                galleryLoading.style.display = 'none';
+                errorText.textContent = message || '加载失败';
                 errorDetail.textContent = detail || '';
             }
 
-            function showImage(src) {
+            function showGallery(images) {
                 placeholder.style.display = 'none';
                 loadingState.style.display = 'none';
                 errorState.style.display = 'none';
-                imageWrapper.style.display = 'flex';
+                galleryView.style.display = 'flex';
+                galleryLoading.style.display = 'none';
 
-                resultImage.classList.remove('loaded');
-                resultImage.alt = 'Pixiv 图片';
+                currentImages = images;
+                currentIndex = 0;
+                renderMainImage();
+                renderThumbs();
+            }
 
-                const img = resultImage;
-                img.src = src;
+            function addImageToGallery(imgData) {
+                currentImages.push(imgData);
+                const index = currentImages.length - 1;
 
+                // 创建缩略图元素
+                const thumb = document.createElement('div');
+                thumb.className = 'thumb-item';
+                thumb.dataset.index = index;
+
+                const img = document.createElement('img');
+                img.src = imgData.url;
+                img.alt = `缩略图 ${index + 1}`;
+                img.loading = 'lazy';
                 img.onload = function() {
                     img.classList.add('loaded');
                 };
+                thumb.appendChild(img);
 
-                img.onerror = function() {
-                    if (!img.complete || img.naturalWidth === 0) {
-                        showError('图片加载失败', '请检查作品 ID 和序号是否正确');
+                const dlBtn = document.createElement('button');
+                dlBtn.className = 'thumb-download';
+                dlBtn.innerHTML = '<i class="fas fa-download"></i>';
+                dlBtn.title = '下载此图';
+                dlBtn.setAttribute('aria-label', '下载此图');
+                dlBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    downloadImage(imgData.url, `${imgData.pid}-${imgData.seq}.${imgData.format}`);
+                });
+                thumb.appendChild(dlBtn);
+
+                thumb.addEventListener('click', function() {
+                    if (currentIndex !== index) {
+                        currentIndex = index;
+                        renderMainImage();
+                        updateThumbActive();
                     }
+                });
+
+                galleryThumbs.appendChild(thumb);
+
+                // 更新计数器
+                imageCounter.textContent = `${currentIndex + 1} / ${currentImages.length}`;
+                // 更新加载提示文字
+                galleryLoadingText.textContent = `正在加载更多图片…（已加载 ${currentImages.length} 张）`;
+            }
+
+            function renderMainImage() {
+                if (!currentImages.length) return;
+                const imgData = currentImages[currentIndex];
+                mainImage.classList.remove('loaded');
+                mainImage.src = imgData.url;
+                mainImage.alt = `PID: ${imgData.pid} #${imgData.seq}`;
+                imageCounter.textContent = `${currentIndex + 1} / ${currentImages.length}`;
+
+                mainImage.onload = function() {
+                    mainImage.classList.add('loaded');
                 };
-
-                if (img.complete && img.naturalWidth > 0) {
-                    img.classList.add('loaded');
-                }
+                mainImage.onerror = function() {
+                    mainImage.classList.remove('loaded');
+                };
             }
 
-            function addHistory(pid, seq, format, url) {
-                const key = generateKey(pid, seq);
-
-                // 如果已存在，更新并移到最前面
-                const existingIndex = historyItems.findIndex(item => item.key === key);
-                if (existingIndex !== -1) {
-                    const item = historyItems[existingIndex];
-                    item.format = format;
-                    item.url = url;
-                    item.timestamp = Date.now();
-                    // 移到最前面
-                    historyItems.splice(existingIndex, 1);
-                    historyItems.unshift(item);
-                } else {
-                    // 新增
-                    const newItem = {
-                        key: key,
-                        pid: pid,
-                        seq: seq,
-                        format: format,
-                        url: url,
-                        timestamp: Date.now()
-                    };
-                    historyItems.unshift(newItem);
-
-                    // 超过最大数量，移除最旧的
-                    if (historyItems.length > MAX_HISTORY) {
-                        historyItems.pop();
-                    }
-                }
-
-                // 更新当前显示标识
-                currentDisplayKey = key;
-
-                renderHistory();
-            }
-
-            function removeHistoryItem(key) {
-                historyItems = historyItems.filter(item => item.key !== key);
-                if (currentDisplayKey === key) {
-                    currentDisplayKey = '';
-                }
-                renderHistory();
-            }
-
-            function clearAllHistory() {
-                historyItems = [];
-                currentDisplayKey = '';
-                renderHistory();
-            }
-
-            function renderHistory() {
-                // 清空滚动容器（保留空状态元素）
-                const cards = historyScroll.querySelectorAll('.history-card');
-                cards.forEach(el => el.remove());
-
-                // 更新计数
-                historyCount.textContent = '(' + historyItems.length + ')';
-
-                // 显示/隐藏空状态
-                if (historyItems.length === 0) {
-                    historyEmpty.style.display = 'flex';
-                } else {
-                    historyEmpty.style.display = 'none';
-                }
-
-                // 渲染卡片
-                historyItems.forEach((item, index) => {
-                    const card = document.createElement('div');
-                    card.className = 'history-card';
-                    if (item.key === currentDisplayKey) {
-                        card.classList.add('active');
-                    }
-                    card.dataset.key = item.key;
-                    card.dataset.index = index;
-
-                    // 缩略图区域
-                    const thumbWrap = document.createElement('div');
-                    thumbWrap.className = 'thumb-wrap';
+            function renderThumbs() {
+                galleryThumbs.innerHTML = '';
+                currentImages.forEach((imgData, index) => {
+                    const thumb = document.createElement('div');
+                    thumb.className = 'thumb-item' + (index === currentIndex ? ' active' : '');
+                    thumb.dataset.index = index;
 
                     const img = document.createElement('img');
-                    img.src = item.url;
-                    img.alt = 'PID: ' + item.pid + ' #' + item.seq;
+                    img.src = imgData.url;
+                    img.alt = `缩略图 ${index + 1}`;
                     img.loading = 'lazy';
                     img.onload = function() {
                         img.classList.add('loaded');
                     };
-                    img.onerror = function() {
-                        // 加载失败显示占位
-                        img.style.display = 'none';
-                        const placeholderIcon = document.createElement('i');
-                        placeholderIcon.className = 'fas fa-image thumb-placeholder';
-                        thumbWrap.appendChild(placeholderIcon);
-                    };
-                    thumbWrap.appendChild(img);
+                    thumb.appendChild(img);
 
-                    // 信息区域
-                    const info = document.createElement('div');
-                    info.className = 'card-info';
-
-                    const pidSpan = document.createElement('div');
-                    pidSpan.className = 'card-pid';
-                    pidSpan.textContent = item.pid;
-
-                    const seqSpan = document.createElement('div');
-                    seqSpan.className = 'card-seq';
-                    seqSpan.innerHTML = '<i class="fas fa-layer-group"></i> #' + item.seq;
-
-                    const formatSpan = document.createElement('div');
-                    formatSpan.className = 'card-format';
-                    formatSpan.textContent = item.format;
-
-                    info.appendChild(pidSpan);
-                    info.appendChild(seqSpan);
-                    info.appendChild(formatSpan);
-
-                    // 删除按钮
-                    const removeBtn = document.createElement('button');
-                    removeBtn.className = 'card-remove';
-                    removeBtn.innerHTML = '<i class="fas fa-times"></i>';
-                    removeBtn.setAttribute('aria-label', '移除历史记录');
-                    removeBtn.title = '移除这条记录';
-                    removeBtn.addEventListener('click', function(e) {
+                    const dlBtn = document.createElement('button');
+                    dlBtn.className = 'thumb-download';
+                    dlBtn.innerHTML = '<i class="fas fa-download"></i>';
+                    dlBtn.title = '下载此图';
+                    dlBtn.setAttribute('aria-label', '下载此图');
+                    dlBtn.addEventListener('click', function(e) {
                         e.stopPropagation();
-                        removeHistoryItem(item.key);
+                        downloadImage(imgData.url, `${imgData.pid}-${imgData.seq}.${imgData.format}`);
+                    });
+                    thumb.appendChild(dlBtn);
+
+                    thumb.addEventListener('click', function() {
+                        if (currentIndex !== index) {
+                            currentIndex = index;
+                            renderMainImage();
+                            updateThumbActive();
+                        }
                     });
 
-                    card.appendChild(thumbWrap);
-                    card.appendChild(info);
-                    card.appendChild(removeBtn);
+                    galleryThumbs.appendChild(thumb);
+                });
 
-                    // 点击卡片加载图片
-                    card.addEventListener('click', function() {
-                        // 更新输入框
-                        pidInput.value = item.pid;
-                        seqInput.value = item.seq;
-                        // 更新格式
+                const activeThumb = galleryThumbs.querySelector('.thumb-item.active');
+                if (activeThumb) {
+                    activeThumb.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+                }
+            }
+
+            function updateThumbActive() {
+                const thumbs = galleryThumbs.querySelectorAll('.thumb-item');
+                thumbs.forEach((thumb, idx) => {
+                    if (idx === currentIndex) {
+                        thumb.classList.add('active');
+                    } else {
+                        thumb.classList.remove('active');
+                    }
+                });
+                const activeThumb = galleryThumbs.querySelector('.thumb-item.active');
+                if (activeThumb) {
+                    activeThumb.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+                }
+            }
+
+            function downloadImage(url, filename) {
+                fetch(url)
+                    .then(res => {
+                        if (!res.ok) throw new Error('HTTP ' + res.status);
+                        return res.blob();
+                    })
+                    .then(blob => {
+                        const blobUrl = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = blobUrl;
+                        a.download = filename;
+                        document.body.appendChild(a);
+                        a.click();
+                        a.remove();
+                        setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+                    })
+                    .catch(() => {
+                        // 如果 fetch 失败（跨域等），直接打开原图
+                        window.open(url, '_blank');
+                    });
+            }
+
+            function downloadAllImages() {
+                if (!currentImages.length) return;
+                let delay = 0;
+                currentImages.forEach((imgData, i) => {
+                    setTimeout(() => {
+                        downloadImage(imgData.url, `${imgData.pid}-${imgData.seq}.${imgData.format}`);
+                    }, delay);
+                    delay += 350; // 间隔350ms避免浏览器拦截
+                });
+            }
+
+            function testImage(url) {
+                return new Promise((resolve) => {
+                    const img = new Image();
+                    const timeout = setTimeout(() => {
+                        img.src = '';
+                        resolve(false);
+                    }, 8000);
+
+                    img.onload = () => {
+                        clearTimeout(timeout);
+                        resolve(true);
+                    };
+                    img.onerror = () => {
+                        clearTimeout(timeout);
+                        resolve(false);
+                    };
+                    img.src = url;
+                });
+            }
+
+            async function detectImages(pid, preferredFormat, onImageFound) {
+                const formats = [preferredFormat];
+                const allFormats = ['png', 'jpg', 'gif'];
+                allFormats.forEach(f => {
+                    if (!formats.includes(f)) formats.push(f);
+                });
+
+                let detectedFormat = null;
+                let firstImageUrl = null;
+
+                // 查找第一张图片并确定格式
+                for (const fmt of formats) {
+                    const url = `https://pixiv.re/${pid}.${fmt}`;
+                    const success = await testImage(url);
+                    if (success) {
+                        detectedFormat = fmt;
+                        firstImageUrl = url;
+                        // 更新格式选择框
                         const radios = document.querySelectorAll('input[name="imgFormat"]');
                         for (const r of radios) {
-                            if (r.value === item.format) {
+                            if (r.value === fmt) {
                                 r.checked = true;
                                 break;
                             }
                         }
-                        // 执行查询
-                        performQuery(true);
-                    });
+                        break;
+                    }
+                }
 
-                    historyScroll.appendChild(card);
+                if (!detectedFormat || !firstImageUrl) {
+                    throw new Error('未找到任何可用格式的图片');
+                }
+
+                // 第一张图片成功，立即通知
+                onImageFound({
+                    pid: pid,
+                    seq: 1,
+                    format: detectedFormat,
+                    url: firstImageUrl
                 });
 
-                // 滚动到最前面（最新）
-                if (historyItems.length > 0) {
-                    historyScroll.scrollLeft = 0;
+                // 继续加载后续序号
+                let consecutiveFails = 0;
+                const maxSeq = 100;
+
+                for (let seq = 2; seq <= maxSeq; seq++) {
+                    const url = `https://pixiv.re/${pid}-${seq}.${detectedFormat}`;
+                    const success = await testImage(url);
+                    if (success) {
+                        const imgData = {
+                            pid: pid,
+                            seq: seq,
+                            format: detectedFormat,
+                            url: url
+                        };
+                        onImageFound(imgData);
+                        consecutiveFails = 0;
+                    } else {
+                        consecutiveFails++;
+                        if (consecutiveFails >= 2) {
+                            break;
+                        }
+                    }
                 }
             }
 
-            let isLoading = false;
-
-            function performQuery(fromHistory) {
+            async function performQuery() {
                 if (isLoading) return;
                 isLoading = true;
-
                 const pid = pidInput.value.trim();
                 if (!pid) {
                     pidInput.focus();
@@ -1365,167 +1220,90 @@
                     return;
                 }
 
-                let seq = parseInt(seqInput.value, 10);
-                if (isNaN(seq) || seq < 1) {
-                    seq = 1;
-                    seqInput.value = 1;
-                }
-
                 const format = getSelectedFormat();
-                let pidPart = pid;
-                if (seq > 1) {
-                    pidPart = pid + '-' + seq;
-                }
+                resetStates();
+                showLoading('正在侦测第一张图片…');
 
-                const url = 'https://pixiv.re/' + pidPart + '.' + format;
+                let firstImageShown = false;
 
-                // 如果不是从历史记录点击的，清除高亮
-                if (!fromHistory) {
-                    currentDisplayKey = '';
-                }
-
-                showLoading();
-
-                const testImg = new Image();
-                let loaded = false;
-                let timeoutId = null;
-
-                const cleanup = function() {
-                    if (timeoutId) {
-                        clearTimeout(timeoutId);
-                        timeoutId = null;
-                    }
-                    testImg.onload = null;
-                    testImg.onerror = null;
-                };
-
-                testImg.onload = function() {
-                    if (loaded) return;
-                    loaded = true;
-                    cleanup();
-                    showImage(url);
-                    // 添加到历史记录（如果不是从历史记录点击的，或者是从历史记录点击但key不同）
-                    if (!fromHistory || (fromHistory && generateKey(pid, seq) !== currentDisplayKey)) {
-                        addHistory(pid, seq, format, url);
-                    } else {
-                        // 从历史记录点击，更新高亮
-                        currentDisplayKey = generateKey(pid, seq);
-                        renderHistory();
-                    }
-                    isLoading = false;
-                };
-
-                testImg.onerror = function() {
-                    if (loaded) return;
-                    loaded = true;
-                    cleanup();
-                    const detail = pidPart + '.' + format;
-                    showError('未找到图片', '请确认作品 ID 存在，且序号和格式正确');
-                    isLoading = false;
-                };
-
-                timeoutId = setTimeout(function() {
-                    if (loaded) return;
-                    loaded = true;
-                    cleanup();
-                    showError('请求超时', '请检查网络连接后重试');
-                    isLoading = false;
-                }, 15000);
-
-                testImg.src = url;
-
-                if (testImg.complete && testImg.naturalWidth > 0) {
-                    if (!loaded) {
-                        loaded = true;
-                        cleanup();
-                        showImage(url);
-                        if (!fromHistory || (fromHistory && generateKey(pid, seq) !== currentDisplayKey)) {
-                            addHistory(pid, seq, format, url);
+                try {
+                    await detectImages(pid, format, (imgData) => {
+                        if (!firstImageShown) {
+                            // 第一次发现图片，立即显示画廊
+                            showGallery([imgData]);
+                            firstImageShown = true;
+                            galleryLoading.style.display = 'flex';
+                            galleryLoadingText.textContent = '正在加载更多图片…';
                         } else {
-                            currentDisplayKey = generateKey(pid, seq);
-                            renderHistory();
+                            // 后续图片，动态添加
+                            addImageToGallery(imgData);
                         }
-                        isLoading = false;
+                    });
+                    // 全部完成
+                    galleryLoading.style.display = 'none';
+                } catch (err) {
+                    if (!firstImageShown) {
+                        showError('加载图集失败', err.message || '请检查作品 ID 或稍后重试');
+                    } else {
+                        // 如果第一张已显示但后续出错（通常不会），保持画廊不变
+                        galleryLoading.style.display = 'none';
                     }
+                } finally {
+                    isLoading = false;
                 }
             }
 
-            // 表单提交
+            // 事件监听
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
-                performQuery(false);
+                performQuery();
             });
 
-            // 输入框回车
             pidInput.addEventListener('keydown', function(e) {
                 if (e.key === 'Enter') {
                     e.preventDefault();
-                    performQuery(false);
-                }
-            });
-            seqInput.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    performQuery(false);
+                    performQuery();
                 }
             });
 
-            // 查询按钮
             queryBtn.addEventListener('click', function(e) {
                 e.preventDefault();
-                performQuery(false);
+                performQuery();
             });
 
-            // 序号增减按钮
-            document.getElementById('seqDec').addEventListener('click', function() {
-                let val = parseInt(seqInput.value, 10) || 1;
-                if (val > 1) val--;
-                seqInput.value = val;
-                performQuery(false);
+            prevBtn.addEventListener('click', function() {
+                if (currentImages.length && currentIndex > 0) {
+                    currentIndex--;
+                    renderMainImage();
+                    updateThumbActive();
+                }
             });
 
-            document.getElementById('seqInc').addEventListener('click', function() {
-                let val = parseInt(seqInput.value, 10) || 1;
-                val++;
-                seqInput.value = val;
-                performQuery(false);
+            nextBtn.addEventListener('click', function() {
+                if (currentImages.length && currentIndex < currentImages.length - 1) {
+                    currentIndex++;
+                    renderMainImage();
+                    updateThumbActive();
+                }
             });
 
-            pidInput.addEventListener('blur', function() {
-                const val = pidInput.value.trim();
-                if (val.includes('-')) {
-                    const parts = val.split('-');
-                    if (parts.length === 2) {
-                        const pidPart = parts[0].trim();
-                        const seqPart = parts[1].trim();
-                        if (pidPart && seqPart && /^\d+$/.test(seqPart)) {
-                            pidInput.value = pidPart;
-                            seqInput.value = parseInt(seqPart, 10);
-                            performQuery(false);
-                        }
+            downloadCurrentBtn.addEventListener('click', function() {
+                if (currentImages.length) {
+                    const imgData = currentImages[currentIndex];
+                    downloadImage(imgData.url, `${imgData.pid}-${imgData.seq}.${imgData.format}`);
+                }
+            });
+
+            downloadAllBtn.addEventListener('click', function() {
+                if (currentImages.length) {
+                    if (confirm(`确定要下载全部 ${currentImages.length} 张图片吗？\n浏览器可能会拦截多个下载，请允许。`)) {
+                        downloadAllImages();
                     }
                 }
             });
 
-            // 清空历史记录
-            clearHistoryBtn.addEventListener('click', function() {
-                if (historyItems.length === 0) return;
-                if (confirm('确定要清空所有历史记录吗？')) {
-                    clearAllHistory();
-                }
-            });
-
-            renderHistory();
-
-            window.__pixiv = {
-                history: historyItems,
-                addHistory: addHistory,
-                clearHistory: clearAllHistory,
-                renderHistory: renderHistory
-            };
-
+            resetStates();
         })();
     </script>
-
 </body>
 </html>
