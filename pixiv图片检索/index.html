@@ -3,17 +3,12 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Pixiv 图片查询 · 暗色主题</title>
-    <!-- Font Awesome 图标库 (纯矢量图标，无 Emoji) -->
+    <title>Pixiv 图片查询</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <style>
-        /* ============================================
-           暗色主题变量 (参考 variables.css)
-           ============================================ */
         :root {
             color-scheme: dark;
 
-            /* ---------- 颜色 · 暗色 ---------- */
             --bg-color: #101015;
             --surface-color: #17171e;
             --surface-color-secondary: #1d1d26;
@@ -29,12 +24,10 @@
             --shadow-color-dark: rgba(0, 0, 0, 0.7);
             --shadow-color-offset: rgba(var(--accent-rgb), 0.1);
 
-            /* ---------- 字体 ---------- */
             --font-display: "Avenir Next", "Futura", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
             --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
             --font-mono: "SF Mono", "Fira Code", "Consolas", monospace;
 
-            /* ---------- 尺寸 ---------- */
             --radius-sm: 6px;
             --radius-md: 10px;
             --radius-lg: 14px;
@@ -55,9 +48,6 @@
             --container-padding: 28px;
         }
 
-        /* ============================================
-           基础重置 & 全局 (参考 base.css)
-           ============================================ */
         * {
             margin: 0;
             padding: 0;
@@ -84,7 +74,6 @@
             transition: background-color 0.5s ease, color 0.5s ease;
         }
 
-        /* ---------- 滚动条 ---------- */
         ::-webkit-scrollbar {
             width: 6px;
             height: 6px;
@@ -117,9 +106,6 @@
             border-radius: var(--radius-sm);
         }
 
-        /* ============================================
-           主容器 (参考 layout.css .container)
-           ============================================ */
         .container {
             max-width: var(--container-max-width);
             width: 100%;
@@ -141,9 +127,6 @@
             }
         }
 
-        /* ============================================
-           头部 (Header)
-           ============================================ */
         .app-header {
             text-align: center;
             margin-bottom: 24px;
@@ -190,9 +173,6 @@
             margin: 0;
         }
 
-        /* ============================================
-           输入区域
-           ============================================ */
         .search-section {
             margin-bottom: 24px;
         }
@@ -448,9 +428,6 @@
             font-size: 0.9rem;
         }
 
-        /* ============================================
-           图片展示区域
-           ============================================ */
         .image-section {
             margin: 18px 0 14px 0;
             border-radius: var(--radius-lg);
@@ -569,11 +546,266 @@
             opacity: 0.7;
         }
 
-        /* ============================================
-           底部信息（精简）
-           ============================================ */
+        .history-section {
+            margin: 18px 0 12px 0;
+            padding: 14px 0 6px 0;
+            border-top: 1px solid var(--border-light);
+            transition: opacity var(--transition-normal);
+        }
+
+        .history-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            padding: 0 4px;
+        }
+
+        .history-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: 0.02em;
+        }
+
+        .history-title i {
+            color: var(--accent-color);
+            opacity: 0.6;
+            font-size: 0.9rem;
+        }
+
+        .history-title .count {
+            font-weight: 400;
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            opacity: 0.6;
+            margin-left: 2px;
+        }
+
+        .history-actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        .history-clear {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            padding: 4px 10px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-family: var(--font-sans);
+            opacity: 0.6;
+        }
+
+        .history-clear:hover {
+            background: rgba(224, 90, 80, 0.12);
+            color: #e05a50;
+            opacity: 1;
+        }
+
+        .history-clear i {
+            font-size: 0.7rem;
+        }
+
+        /* 历史滚动容器 */
+        .history-scroll {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding: 4px 4px 12px 4px;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+        }
+
+        .history-scroll::-webkit-scrollbar {
+            height: 4px;
+        }
+        .history-scroll::-webkit-scrollbar-track {
+            background: var(--bg-color);
+            border-radius: var(--radius-full);
+        }
+        .history-scroll::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: var(--radius-full);
+        }
+        .history-scroll::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-color);
+        }
+
+        /* 空状态 */
+        .history-empty {
+            flex: 1;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.82rem;
+            padding: 16px 0;
+            opacity: 0.5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .history-empty i {
+            font-size: 1.4rem;
+            opacity: 0.4;
+            color: var(--accent-color);
+        }
+
+        /* 历史卡片 */
+        .history-card {
+            flex: 0 0 96px;
+            width: 96px;
+            background: var(--surface-color-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .history-card:hover {
+            border-color: var(--accent-color);
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .history-card:active {
+            transform: scale(0.95);
+        }
+
+        .history-card.active {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.2), var(--shadow-sm);
+        }
+
+        .history-card .thumb-wrap {
+            width: 100%;
+            height: 72px;
+            background: var(--bg-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .history-card .thumb-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: opacity 0.3s ease;
+            display: block;
+        }
+
+        .history-card .thumb-wrap img.loaded {
+            opacity: 1;
+        }
+
+        .history-card .thumb-wrap .thumb-placeholder {
+            color: var(--text-secondary);
+            font-size: 1.6rem;
+            opacity: 0.25;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .history-card .card-info {
+            padding: 4px 6px 6px 6px;
+            text-align: center;
+            font-size: 0.6rem;
+            line-height: 1.4;
+            color: var(--text-secondary);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 32px;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .history-card .card-info .card-pid {
+            font-weight: 600;
+            color: var(--text-color);
+            font-size: 0.65rem;
+            letter-spacing: 0.01em;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .history-card .card-info .card-seq {
+            font-size: 0.55rem;
+            opacity: 0.7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .history-card .card-info .card-seq i {
+            font-size: 0.45rem;
+            opacity: 0.5;
+        }
+
+        .history-card .card-info .card-format {
+            font-size: 0.5rem;
+            opacity: 0.5;
+            text-transform: uppercase;
+            margin-top: 1px;
+        }
+
+        /* 卡片删除按钮（悬停显示） */
+        .history-card .card-remove {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: rgba(0, 0, 0, 0.7);
+            border: none;
+            color: #e05a50;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.5rem;
+            opacity: 0;
+            transition: opacity var(--transition-fast), transform var(--transition-fast);
+            padding: 0;
+            backdrop-filter: blur(4px);
+        }
+
+        .history-card:hover .card-remove {
+            opacity: 0.8;
+        }
+
+        .history-card .card-remove:hover {
+            opacity: 1;
+            transform: scale(1.15);
+            background: rgba(224, 90, 80, 0.3);
+        }
+
         .footer-info {
-            margin-top: 20px;
+            margin-top: 18px;
             padding-top: 16px;
             border-top: 1px solid var(--border-light);
             display: flex;
@@ -605,9 +837,6 @@
             gap: 4px;
         }
 
-        /* ============================================
-           响应式
-           ============================================ */
         @media (max-width: 580px) {
             :root {
                 --container-padding: 18px;
@@ -660,6 +889,25 @@
             .footer-info .tips {
                 justify-content: center;
             }
+
+            .history-card {
+                flex: 0 0 80px;
+                width: 80px;
+            }
+            .history-card .thumb-wrap {
+                height: 60px;
+            }
+            .history-card .card-info {
+                font-size: 0.5rem;
+                min-height: 28px;
+                padding: 3px 4px 4px 4px;
+            }
+            .history-card .card-info .card-pid {
+                font-size: 0.55rem;
+            }
+            .history-card .card-info .card-seq {
+                font-size: 0.45rem;
+            }
         }
 
         @media (min-width: 581px) and (max-width: 768px) {
@@ -680,6 +928,13 @@
                 padding: 12px 36px;
                 font-size: 1rem;
             }
+            .history-card {
+                flex: 0 0 110px;
+                width: 110px;
+            }
+            .history-card .thumb-wrap {
+                height: 82px;
+            }
         }
 
         /* ---------- 减少动画偏好 ---------- */
@@ -694,9 +949,6 @@
             }
         }
 
-        /* ============================================
-           工具类
-           ============================================ */
         .sr-only {
             position: absolute;
             width: 1px;
@@ -812,11 +1064,38 @@
             </div>
         </section>
 
-        <!-- 底部信息（精简） -->
+        <!-- ==========================================
+        历史记录窗格 (新增)
+        ========================================== -->
+        <section class="history-section" id="historySection" aria-label="历史记录">
+            <div class="history-header">
+                <span class="history-title">
+                    <i class="fas fa-clock-rotate-left"></i> 历史记录
+                    <span class="count" id="historyCount">(0)</span>
+                </span>
+                <div class="history-actions">
+                    <button type="button" class="history-clear" id="clearHistory" title="清空所有历史记录">
+                        <i class="fas fa-trash-alt"></i> 清空
+                    </button>
+                </div>
+            </div>
+            <div class="history-scroll" id="historyScroll">
+                <!-- 空状态 -->
+                <div class="history-empty" id="historyEmpty">
+                    <i class="fas fa-images"></i>
+                    <span>暂无历史记录</span>
+                    <span style="font-size:0.7rem;opacity:0.6;">查询图片后将自动记录</span>
+                </div>
+                <!-- 动态卡片由 JS 渲染 -->
+            </div>
+        </section>
+
+        <!-- 底部信息 -->
         <footer class="footer-info">
             <div class="tips">
                 <span><i class="fas fa-info-circle"></i> 多图作品使用序号切换</span>
                 <span><i class="fas fa-code"></i> 服务: pixiv.re</span>
+                <span><i class="fas fa-clock"></i> 历史记录保存最近 20 张</span>
             </div>
         </footer>
     </main>
@@ -825,7 +1104,6 @@
         (function() {
             'use strict';
 
-            // DOM 引用
             const form = document.getElementById('searchForm');
             const pidInput = document.getElementById('pidInput');
             const seqInput = document.getElementById('seqInput');
@@ -838,7 +1116,16 @@
             const imageWrapper = document.getElementById('imageWrapper');
             const resultImage = document.getElementById('resultImage');
 
-            // 获取选中的图片格式
+            // 历史记录 DOM
+            const historyScroll = document.getElementById('historyScroll');
+            const historyEmpty = document.getElementById('historyEmpty');
+            const historyCount = document.getElementById('historyCount');
+            const clearHistoryBtn = document.getElementById('clearHistory');
+
+            let historyItems = [];
+            const MAX_HISTORY = 20;
+            let currentDisplayKey = ''; // 用于高亮当前显示的图片
+
             function getSelectedFormat() {
                 const radios = document.querySelectorAll('input[name="imgFormat"]');
                 for (const r of radios) {
@@ -847,7 +1134,10 @@
                 return 'png';
             }
 
-            // 重置所有状态（保留占位）
+            function generateKey(pid, seq) {
+                return pid + '|' + seq;
+            }
+
             function resetStates() {
                 placeholder.style.display = 'flex';
                 loadingState.style.display = 'none';
@@ -858,7 +1148,6 @@
                 resultImage.alt = '';
             }
 
-            // 显示加载状态
             function showLoading() {
                 placeholder.style.display = 'none';
                 loadingState.style.display = 'flex';
@@ -866,7 +1155,6 @@
                 imageWrapper.style.display = 'none';
             }
 
-            // 显示错误
             function showError(message, detail) {
                 placeholder.style.display = 'none';
                 loadingState.style.display = 'none';
@@ -876,7 +1164,6 @@
                 errorDetail.textContent = detail || '';
             }
 
-            // 显示图片
             function showImage(src) {
                 placeholder.style.display = 'none';
                 loadingState.style.display = 'none';
@@ -904,8 +1191,169 @@
                 }
             }
 
-            // 执行查询
-            function performQuery() {
+            function addHistory(pid, seq, format, url) {
+                const key = generateKey(pid, seq);
+
+                // 如果已存在，更新并移到最前面
+                const existingIndex = historyItems.findIndex(item => item.key === key);
+                if (existingIndex !== -1) {
+                    const item = historyItems[existingIndex];
+                    item.format = format;
+                    item.url = url;
+                    item.timestamp = Date.now();
+                    // 移到最前面
+                    historyItems.splice(existingIndex, 1);
+                    historyItems.unshift(item);
+                } else {
+                    // 新增
+                    const newItem = {
+                        key: key,
+                        pid: pid,
+                        seq: seq,
+                        format: format,
+                        url: url,
+                        timestamp: Date.now()
+                    };
+                    historyItems.unshift(newItem);
+
+                    // 超过最大数量，移除最旧的
+                    if (historyItems.length > MAX_HISTORY) {
+                        historyItems.pop();
+                    }
+                }
+
+                // 更新当前显示标识
+                currentDisplayKey = key;
+
+                renderHistory();
+            }
+
+            function removeHistoryItem(key) {
+                historyItems = historyItems.filter(item => item.key !== key);
+                if (currentDisplayKey === key) {
+                    currentDisplayKey = '';
+                }
+                renderHistory();
+            }
+
+            function clearAllHistory() {
+                historyItems = [];
+                currentDisplayKey = '';
+                renderHistory();
+            }
+
+            function renderHistory() {
+                // 清空滚动容器（保留空状态元素）
+                const cards = historyScroll.querySelectorAll('.history-card');
+                cards.forEach(el => el.remove());
+
+                // 更新计数
+                historyCount.textContent = '(' + historyItems.length + ')';
+
+                // 显示/隐藏空状态
+                if (historyItems.length === 0) {
+                    historyEmpty.style.display = 'flex';
+                } else {
+                    historyEmpty.style.display = 'none';
+                }
+
+                // 渲染卡片
+                historyItems.forEach((item, index) => {
+                    const card = document.createElement('div');
+                    card.className = 'history-card';
+                    if (item.key === currentDisplayKey) {
+                        card.classList.add('active');
+                    }
+                    card.dataset.key = item.key;
+                    card.dataset.index = index;
+
+                    // 缩略图区域
+                    const thumbWrap = document.createElement('div');
+                    thumbWrap.className = 'thumb-wrap';
+
+                    const img = document.createElement('img');
+                    img.src = item.url;
+                    img.alt = 'PID: ' + item.pid + ' #' + item.seq;
+                    img.loading = 'lazy';
+                    img.onload = function() {
+                        img.classList.add('loaded');
+                    };
+                    img.onerror = function() {
+                        // 加载失败显示占位
+                        img.style.display = 'none';
+                        const placeholderIcon = document.createElement('i');
+                        placeholderIcon.className = 'fas fa-image thumb-placeholder';
+                        thumbWrap.appendChild(placeholderIcon);
+                    };
+                    thumbWrap.appendChild(img);
+
+                    // 信息区域
+                    const info = document.createElement('div');
+                    info.className = 'card-info';
+
+                    const pidSpan = document.createElement('div');
+                    pidSpan.className = 'card-pid';
+                    pidSpan.textContent = item.pid;
+
+                    const seqSpan = document.createElement('div');
+                    seqSpan.className = 'card-seq';
+                    seqSpan.innerHTML = '<i class="fas fa-layer-group"></i> #' + item.seq;
+
+                    const formatSpan = document.createElement('div');
+                    formatSpan.className = 'card-format';
+                    formatSpan.textContent = item.format;
+
+                    info.appendChild(pidSpan);
+                    info.appendChild(seqSpan);
+                    info.appendChild(formatSpan);
+
+                    // 删除按钮
+                    const removeBtn = document.createElement('button');
+                    removeBtn.className = 'card-remove';
+                    removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+                    removeBtn.setAttribute('aria-label', '移除历史记录');
+                    removeBtn.title = '移除这条记录';
+                    removeBtn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        removeHistoryItem(item.key);
+                    });
+
+                    card.appendChild(thumbWrap);
+                    card.appendChild(info);
+                    card.appendChild(removeBtn);
+
+                    // 点击卡片加载图片
+                    card.addEventListener('click', function() {
+                        // 更新输入框
+                        pidInput.value = item.pid;
+                        seqInput.value = item.seq;
+                        // 更新格式
+                        const radios = document.querySelectorAll('input[name="imgFormat"]');
+                        for (const r of radios) {
+                            if (r.value === item.format) {
+                                r.checked = true;
+                                break;
+                            }
+                        }
+                        // 执行查询
+                        performQuery(true);
+                    });
+
+                    historyScroll.appendChild(card);
+                });
+
+                // 滚动到最前面（最新）
+                if (historyItems.length > 0) {
+                    historyScroll.scrollLeft = 0;
+                }
+            }
+
+            let isLoading = false;
+
+            function performQuery(fromHistory) {
+                if (isLoading) return;
+                isLoading = true;
+
                 const pid = pidInput.value.trim();
                 if (!pid) {
                     pidInput.focus();
@@ -913,6 +1361,7 @@
                     setTimeout(() => {
                         pidInput.style.borderColor = '';
                     }, 1200);
+                    isLoading = false;
                     return;
                 }
 
@@ -929,6 +1378,11 @@
                 }
 
                 const url = 'https://pixiv.re/' + pidPart + '.' + format;
+
+                // 如果不是从历史记录点击的，清除高亮
+                if (!fromHistory) {
+                    currentDisplayKey = '';
+                }
 
                 showLoading();
 
@@ -950,6 +1404,15 @@
                     loaded = true;
                     cleanup();
                     showImage(url);
+                    // 添加到历史记录（如果不是从历史记录点击的，或者是从历史记录点击但key不同）
+                    if (!fromHistory || (fromHistory && generateKey(pid, seq) !== currentDisplayKey)) {
+                        addHistory(pid, seq, format, url);
+                    } else {
+                        // 从历史记录点击，更新高亮
+                        currentDisplayKey = generateKey(pid, seq);
+                        renderHistory();
+                    }
+                    isLoading = false;
                 };
 
                 testImg.onerror = function() {
@@ -958,6 +1421,7 @@
                     cleanup();
                     const detail = pidPart + '.' + format;
                     showError('未找到图片', '请确认作品 ID 存在，且序号和格式正确');
+                    isLoading = false;
                 };
 
                 timeoutId = setTimeout(function() {
@@ -965,6 +1429,7 @@
                     loaded = true;
                     cleanup();
                     showError('请求超时', '请检查网络连接后重试');
+                    isLoading = false;
                 }, 15000);
 
                 testImg.src = url;
@@ -974,36 +1439,41 @@
                         loaded = true;
                         cleanup();
                         showImage(url);
+                        if (!fromHistory || (fromHistory && generateKey(pid, seq) !== currentDisplayKey)) {
+                            addHistory(pid, seq, format, url);
+                        } else {
+                            currentDisplayKey = generateKey(pid, seq);
+                            renderHistory();
+                        }
+                        isLoading = false;
                     }
                 }
             }
 
-            // ---------- 事件绑定 ----------
-
             // 表单提交
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
-                performQuery();
+                performQuery(false);
             });
 
             // 输入框回车
             pidInput.addEventListener('keydown', function(e) {
                 if (e.key === 'Enter') {
                     e.preventDefault();
-                    performQuery();
+                    performQuery(false);
                 }
             });
             seqInput.addEventListener('keydown', function(e) {
                 if (e.key === 'Enter') {
                     e.preventDefault();
-                    performQuery();
+                    performQuery(false);
                 }
             });
 
             // 查询按钮
             queryBtn.addEventListener('click', function(e) {
                 e.preventDefault();
-                performQuery();
+                performQuery(false);
             });
 
             // 序号增减按钮
@@ -1011,17 +1481,16 @@
                 let val = parseInt(seqInput.value, 10) || 1;
                 if (val > 1) val--;
                 seqInput.value = val;
-                performQuery();
+                performQuery(false);
             });
 
             document.getElementById('seqInc').addEventListener('click', function() {
                 let val = parseInt(seqInput.value, 10) || 1;
                 val++;
                 seqInput.value = val;
-                performQuery();
+                performQuery(false);
             });
 
-            // 兼容旧式 "pid-seq" 输入（自动拆分）
             pidInput.addEventListener('blur', function() {
                 const val = pidInput.value.trim();
                 if (val.includes('-')) {
@@ -1032,14 +1501,29 @@
                         if (pidPart && seqPart && /^\d+$/.test(seqPart)) {
                             pidInput.value = pidPart;
                             seqInput.value = parseInt(seqPart, 10);
-                            performQuery();
+                            performQuery(false);
                         }
                     }
                 }
             });
 
-            console.log('Pixiv 图片查询工具已加载 (暗色主题)');
-            console.log('输入作品 ID，使用序号切换多图');
+            // 清空历史记录
+            clearHistoryBtn.addEventListener('click', function() {
+                if (historyItems.length === 0) return;
+                if (confirm('确定要清空所有历史记录吗？')) {
+                    clearAllHistory();
+                }
+            });
+
+            renderHistory();
+
+            window.__pixiv = {
+                history: historyItems,
+                addHistory: addHistory,
+                clearHistory: clearAllHistory,
+                renderHistory: renderHistory
+            };
+
         })();
     </script>
 
