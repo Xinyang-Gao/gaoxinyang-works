@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>零宽字符隐写 V13</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
+    <style>
+        :root {
+            --primary: #3182ce;
+            --primary-hover: #2b6cb0;
+            --bg: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-main: #1a202c;
+            --text-sub: #718096;
+            --border: #e2e8f0;
+            --success: #38a169;
+            --danger: #e53e3e;
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: var(--bg);
+            margin: 0;
+            padding: 24px;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            color: var(--text-main);
+        }
+        .container {
+            max-width: 900px;
+            width: 100%;
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+            padding: 32px;
+        }
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin: 0 0 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .badge {
+            font-size: 0.7rem;
+            font-weight: 700;
+            background: #ebf8ff;
+            color: var(--primary);
+            padding: 3px 12px;
+            border-radius: 20px;
+            border: 1px solid #bee3f8;
+            text-transform: uppercase;
+        }
+        .subtitle {
+            color: var(--text-sub);
+            font-size: 0.95rem;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .section { margin-bottom: 32px; }
+        .section-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin: 0 0 16px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        label {
+            display: block;
+            font-weight: 500;
+            color: #4a5568;
+            margin: 12px 0 6px;
+            font-size: 0.9rem;
+        }
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e0;
+            border-radius: 8px;
+            font-family: 'SF Mono', 'Consolas', monospace;
+            font-size: 0.9rem;
+            background: #fdfdfe;
+            resize: vertical;
+            transition: all 0.2s;
+            line-height: 1.5;
+        }
+        textarea:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.15);
+        }
+        .btn-group {
+            margin: 16px 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn:hover { background: var(--primary-hover); transform: translateY(-1px); }
+        .btn:active { transform: translateY(0); }
+        .btn-secondary { background: #a0aec0; }
+        .btn-secondary:hover { background: #718096; }
+        .btn-outline {
+            background: transparent;
+            color: #4a5568;
+            border: 1px solid #cbd5e0;
+        }
+        .btn-outline:hover { background: #f7fafc; border-color: #a0aec0; }
+        
+        .result-area {
+            margin-top: 20px;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .result-box { position: relative; }
+        .result-box textarea {
+            background: #f7fafc;
+            padding-right: 90px;
+            color: #2d3748;
+        }
+        .copy-btn {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            color: #2d3748;
+            cursor: pointer;
+            transition: all 0.15s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .copy-btn:hover { background: #edf2f7; border-color: #cbd5e0; }
+
+        .stats-grid {
+            background: #f7fafc;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 16px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            font-size: 0.9rem;
+            border: 1px solid #edf2f7;
+        }
+        .stat-item { display: flex; flex-direction: column; gap: 4px; }
+        .stat-label { color: #718096; font-size: 0.8rem; font-weight: 500; }
+        .stat-value { font-weight: 700; font-family: 'SF Mono', monospace; color: #2d3748; }
+        .stat-value.good { color: var(--success); }
+        .stat-value.bad { color: var(--danger); }
+
+        .mode-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-left: 8px;
+        }
+        .mode-compressed { background: #c6f6d5; color: #276749; }
+        .mode-raw { background: #fefcbf; color: #975a16; }
+        .mode-char { background: #bee3f8; color: #2a5470; }
+
+        .error-msg {
+            color: #c53030;
+            background: #fff5f5;
+            padding: 10px 14px;
+            border-radius: 6px;
+            margin-top: 12px;
+            display: none;
+            border-left: 4px solid #fc8181;
+            font-size: 0.9rem;
+        }
+        .error-msg.show { display: block; }
+
+        .char-map {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            background: #f7fafc;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #edf2f7;
+        }
+        .char-pair {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.8rem;
+            background: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid #e2e8f0;
+        }
+        .char-pair span:first-child { font-size: 1.2rem; width: 20px; text-align: center; }
+        .char-pair span:last-child { color: #718096; font-family: monospace; }
+
+        .decoded-box {
+            background: #f0fff4;
+            border: 1px solid #9ae6b4;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 16px;
+            display: none;
+        }
+        .decoded-box.show { display: block; }
+        .secret-content {
+            background: white;
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 8px;
+            word-break: break-all;
+            font-family: 'SF Mono', monospace;
+            border: 1px solid #e2e8f0;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        @media (max-width: 600px) {
+            .container { padding: 20px; }
+            .btn-group { flex-direction: column; }
+            .btn { width: 100%; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>
+            ⚡ 零宽字符隐写
+            <span class="badge">V13 Optimized</span>
+        </h1>
+        <div class="subtitle">
+            <span>16种零宽字符 · 4 bit/字符 · 智能压缩策略</span>
+            <span style="font-size: 0.8rem; color: #a0aec0;">双击结果自动填入解码区</span>
+        </div>
+
+        <div class="char-map" id="charMapDisplay"></div>
+
+        <!-- Encoding Section -->
+        <div class="section">
+            <div class="section-title">🔒 编码隐写</div>
+            <label for="coverText">掩护文本 (Cover Text)</label>
+            <textarea id="coverText" rows="2" placeholder="可选：输入公开可见的文字..."></textarea>
+
+            <label for="secretText">秘密信息 (Secret Message)</label>
+            <textarea id="secretText" rows="3" placeholder="输入要隐藏的内容..."></textarea>
+
+            <div class="btn-group">
+                <button class="btn" id="encodeBtn">开始编码</button>
+                <button class="btn btn-outline" id="sampleEncodeBtn">加载示例</button>
+                <button class="btn btn-secondary" id="clearEncodeBtn">清空</button>
+            </div>
+
+            <div class="result-area" id="encodeResultArea" style="display:none;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <label style="margin:0;">编码结果</label>
+                    <span id="encodeModeBadge"></span>
+                </div>
+                <div class="result-box">
+                    <textarea id="encodedResult" rows="4" readonly></textarea>
+                    <button class="copy-btn" id="copyEncodedBtn">复制</button>
+                </div>
+                <div class="stats-grid" id="encodeStats"></div>
+            </div>
+            <div class="error-msg" id="encodeError"></div>
+        </div>
+
+        <!-- Decoding Section -->
+        <div class="section">
+            <div class="section-title">🔓 解码提取</div>
+            <label for="decodeText">待解码文本</label>
+            <textarea id="decodeText" rows="4" placeholder="粘贴包含零宽字符的文本..."></textarea>
+
+            <div class="btn-group">
+                <button class="btn" style="background:var(--success);" id="decodeBtn">开始解码</button>
+                <button class="btn btn-outline" id="sampleDecodeBtn">加载示例</button>
+                <button class="btn btn-secondary" id="clearDecodeBtn">清空</button>
+            </div>
+
+            <div class="decoded-box" id="decodedResultBox">
+                <strong>提取结果：</strong>
+                <div class="secret-content" id="decodedContent"></div>
+                <div class="stats-grid" id="decodeStats" style="margin-top:12px; background:white; border:none; padding:0;"></div>
+            </div>
+            <div class="error-msg" id="decodeError"></div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            'use strict';
+
+            // ================================================================
+            // 1. Constants & Configuration
+            // ================================================================
+            
+            // 16 Zero-Width Characters mapped to 0-F
+            const ZW_CHARS = [
+                '\u200B', // 0
+                '\u200C', // 1
+                '\u200D', // 2
+                '\uFEFF', // 3
+                '\u200E', // 4
+                '\u200F', // 5
+                '\u2060', // 6
+                '\u2061', // 7
+                '\u2062', // 8
+                '\u2063', // 9
+                '\u2064', // A
+                '\u202A', // B
+                '\u202B', // C
+                '\u202C', // D (now used as normal data mapping)
+                '\u202D', // E
+                '\u202E'  // F
+            ];
+
+            // Reverse Map for O(1) Lookup
+            const ZW_TO_HEX = {};
+            ZW_CHARS.forEach((char, index) => {
+                ZW_TO_HEX[char] = index;
+            });
+
+            // Markers (Using first 5 chars)
+            const MARKERS = {
+                COMPRESSED_UTF8: ZW_CHARS[0],
+                COMPRESSED_UTF16: ZW_CHARS[1],
+                RAW_UTF8: ZW_CHARS[2],
+                RAW_UTF16: ZW_CHARS[3],
+                CHARACTER_MODE: ZW_CHARS[4]
+            };
+
+            // Populate Char Map Display
+            const charMapContainer = document.getElementById('charMapDisplay');
+            let mapHtml = '<span style="font-weight:600; margin-right:8px; align-self:center;">映射表:</span>';
+            ZW_CHARS.forEach((char, i) => {
+                const hex = i.toString(16).toUpperCase();
+                mapHtml += `<div class="char-pair"><span>${char}</span><span>${hex}</span></div>`;
+            });
+            charMapContainer.innerHTML = mapHtml;
+
+            // ================================================================
+            // 2. Core Algorithms (Optimized)
+            // ================================================================
+
+            /**
+             * Converts Uint8Array to Zero-Width String using 4-bit encoding.
+             * No terminator added – length is determined by header.
+             */
+            function bytesToZw(bytes) {
+                const len = bytes.length;
+                const result = new Array(len * 2);
+                for (let i = 0; i < len; i++) {
+                    const b = bytes[i];
+                    result[i * 2] = ZW_CHARS[(b >> 4) & 0x0F];
+                    result[i * 2 + 1] = ZW_CHARS[b & 0x0F];
+                }
+                return result.join('');
+            }
+
+            /**
+             * Converts a string of zero-width characters back to Uint8Array.
+             * Ignores any non-ZW characters (for robustness).
+             */
+            function zwToBytes(zwStr) {
+                const valid = [];
+                for (let i = 0; i < zwStr.length; i++) {
+                    const c = zwStr[i];
+                    if (ZW_TO_HEX[c] !== undefined) valid.push(c);
+                }
+                // If odd number, drop last nibble
+                if (valid.length % 2) valid.pop();
+                const byteCount = valid.length / 2;
+                const bytes = new Uint8Array(byteCount);
+                for (let i = 0; i < byteCount; i++) {
+                    bytes[i] = (ZW_TO_HEX[valid[i * 2]] << 4) | ZW_TO_HEX[valid[i * 2 + 1]];
+                }
+                return bytes;
+            }
+
+            // ================================================================
+            // 3. Character Mode (3-bit, fallback for very short texts)
+            // ================================================================
+
+            // Using first 8 ZW_CHARS for 3-bit encoding
+            const CHAR_MAP_8 = ZW_CHARS.slice(0, 8);
+            const REV_CHAR_MAP_8 = {};
+            CHAR_MAP_8.forEach((c, i) => REV_CHAR_MAP_8[c] = i);
+
+            function encodeCharMode(str) {
+                // Convert string to bitstream with markers
+                const bits = [];
+                let i = 0;
+                while (i < str.length) {
+                    const cp = str.codePointAt(i);
+                    if (cp === undefined) break;
+                    let code = cp;
+                    let bitLen = 0;
+                    if (cp <= 0x7F) {
+                        // ASCII: 0 + 7 bits
+                        bits.push(0);
+                        for (let b = 6; b >= 0; b--) bits.push((cp >> b) & 1);
+                        bitLen = 8;
+                    } else if (cp <= 0xFFFF) {
+                        // BMP: 1 + 16 bits
+                        bits.push(1);
+                        for (let b = 15; b >= 0; b--) bits.push((cp >> b) & 1);
+                        bitLen = 17;
+                    } else if (cp <= 0x10FFFF) {
+                        // Non-BMP: 2 + 20 bits
+                        bits.push(2);
+                        const data = cp - 0x10000;
+                        for (let b = 19; b >= 0; b--) bits.push((data >> b) & 1);
+                        bitLen = 22;
+                    }
+                    i += (cp > 0xFFFF) ? 2 : 1;
+                }
+                // Pad to multiple of 3
+                while (bits.length % 3) bits.push(0);
+                const zwChars = [];
+                for (let idx = 0; idx < bits.length; idx += 3) {
+                    const val = (bits[idx] << 2) | (bits[idx + 1] << 1) | bits[idx + 2];
+                    zwChars.push(CHAR_MAP_8[val]);
+                }
+                return zwChars.join('');
+            }
+
+            function decodeCharMode(zwStr) {
+                const bits = [];
+                for (let ch of zwStr) {
+                    const val = REV_CHAR_MAP_8[ch];
+                    if (val !== undefined) {
+                        bits.push((val >> 2) & 1, (val >> 1) & 1, val & 1);
+                    }
+                }
+                const chars = [];
+                let pos = 0;
+                while (pos < bits.length) {
+                    if (pos + 1 >= bits.length) break;
+                    const marker = (bits[pos] << 1) | bits[pos + 1];
+                    pos += 2;
+                    if (marker === 0) { // ASCII
+                        if (pos + 7 > bits.length) break;
+                        let val = 0;
+                        for (let k = 0; k < 7; k++) val = (val << 1) | (bits[pos + k] || 0);
+                        pos += 7;
+                        chars.push(String.fromCodePoint(val));
+                    } else if (marker === 1) { // BMP
+                        if (pos + 16 > bits.length) break;
+                        let val = 0;
+                        for (let k = 0; k < 16; k++) val = (val << 1) | (bits[pos + k] || 0);
+                        pos += 16;
+                        chars.push(String.fromCodePoint(val));
+                    } else if (marker === 2) { // Non-BMP
+                        if (pos + 20 > bits.length) break;
+                        let val = 0;
+                        for (let k = 0; k < 20; k++) val = (val << 1) | (bits[pos + k] || 0);
+                        pos += 20;
+                        const cp = 0x10000 + val;
+                        if (cp <= 0x10FFFF) chars.push(String.fromCodePoint(cp));
+                    }
+                }
+                return chars.join('');
+            }
+
+            // ================================================================
+            // 4. Strategy Selection (Auto-optimize)
+            // ================================================================
+
+            function getBestStrategy(secretStr) {
+                if (!secretStr) throw new Error("Empty secret");
+
+                const utf8Bytes = new TextEncoder().encode(secretStr);
+                const utf16Bytes = new Uint8Array(secretStr.length * 2);
+                for (let i = 0; i < secretStr.length; i++) {
+                    const code = secretStr.charCodeAt(i);
+                    utf16Bytes[i * 2] = (code >> 8) & 0xFF;
+                    utf16Bytes[i * 2 + 1] = code & 0xFF;
+                }
+
+                const candidates = [];
+
+                const evaluate = (bytes, marker, type, encodingName) => {
+                    const header = new Uint8Array(4);
+                    new DataView(header.buffer).setUint32(0, bytes.length, false);
+                    const total = new Uint8Array(header.length + bytes.length);
+                    total.set(header);
+                    total.set(bytes, header.length);
+                    // Each byte -> 2 ZW chars (no terminator)
+                    const zwCount = total.length * 2;
+                    candidates.push({
+                        marker: marker,
+                        data: bytes,
+                        zwCount: zwCount,
+                        type: type,
+                        encoding: encodingName,
+                        originalByteLen: bytes.length
+                    });
+                };
+
+                // Byte Modes (4-bit)
+                evaluate(utf8Bytes, MARKERS.RAW_UTF8, 'raw', 'UTF-8');
+                evaluate(utf16Bytes, MARKERS.RAW_UTF16, 'raw', 'UTF-16BE');
+
+                try {
+                    const compUtf8 = pako.deflate(utf8Bytes, { level: 9 });
+                    evaluate(compUtf8, MARKERS.COMPRESSED_UTF8, 'compressed', 'UTF-8');
+                } catch(e) {}
+                try {
+                    const compUtf16 = pako.deflate(utf16Bytes, { level: 9 });
+                    evaluate(compUtf16, MARKERS.COMPRESSED_UTF16, 'compressed', 'UTF-16BE');
+                } catch(e) {}
+
+                // Character Mode (3-bit) – fallback for very short texts
+                const charZw = encodeCharMode(secretStr);
+                const charZwCount = 1 + charZw.length; // marker + data
+                candidates.push({
+                    marker: MARKERS.CHARACTER_MODE,
+                    data: charZw,
+                    zwCount: charZwCount,
+                    type: 'character',
+                    encoding: '3-bit',
+                    originalByteLen: utf8Bytes.length,
+                    isChar: true
+                });
+
+                candidates.sort((a, b) => a.zwCount - b.zwCount);
+                return candidates[0];
+            }
+
+            // ================================================================
+            // 5. Main Encode/Decode
+            // ================================================================
+
+            function encode(coverText, secretText) {
+                const strategy = getBestStrategy(secretText);
+                
+                // Build payload: header (4 bytes length) + data
+                const header = new Uint8Array(4);
+                new DataView(header.buffer).setUint32(0, strategy.data.length, false);
+                const fullData = new Uint8Array(4 + strategy.data.length);
+                fullData.set(header);
+                fullData.set(strategy.data, 4);
+
+                let zwData;
+                if (strategy.isChar) {
+                    // Character mode: data is already a ZW string (no header)
+                    zwData = strategy.data;
+                } else {
+                    zwData = bytesToZw(fullData);
+                }
+
+                const finalString = coverText + strategy.marker + zwData;
+
+                return {
+                    result: finalString,
+                    stats: {
+                        mode: strategy.type,
+                        encoding: strategy.encoding,
+                        zwCount: strategy.zwCount,
+                        originalLen: secretText.length,
+                        byteLen: strategy.originalByteLen,
+                        ratio: (strategy.zwCount / secretText.length).toFixed(2)
+                    }
+                };
+            }
+
+            function decode(text) {
+                // Find first marker occurrence
+                let marker = null;
+                let markerIndex = -1;
+                for (const key in MARKERS) {
+                    const m = MARKERS[key];
+                    const idx = text.indexOf(m);
+                    if (idx !== -1 && (markerIndex === -1 || idx < markerIndex)) {
+                        marker = m;
+                        markerIndex = idx;
+                    }
+                }
+                if (!marker) throw new Error("未找到有效的隐写标记");
+
+                // Extract substring after marker
+                const dataPart = text.substring(markerIndex + 1);
+                // Filter only ZW chars (robustness)
+                const zwData = dataPart.split('').filter(c => ZW_TO_HEX[c] !== undefined).join('');
+
+                if (marker === MARKERS.CHARACTER_MODE) {
+                    // Character mode: decode directly
+                    const decoded = decodeCharMode(zwData);
+                    return {
+                        text: decoded,
+                        stats: {
+                            mode: 'character',
+                            encoding: '3-bit',
+                            zwCount: zwData.length,
+                            byteLen: new TextEncoder().encode(decoded).length
+                        }
+                    };
+                } else {
+                    // Byte mode: zwData is 4-bit encoded (no header yet)
+                    const rawBytes = zwToBytes(zwData);
+                    if (rawBytes.length < 4) throw new Error("数据长度不足");
+                    const dataLen = new DataView(rawBytes.buffer).getUint32(0, false);
+                    const payload = rawBytes.slice(4, 4 + dataLen);
+
+                    let finalBytes = payload;
+                    if (marker === MARKERS.COMPRESSED_UTF8 || marker === MARKERS.COMPRESSED_UTF16) {
+                        try {
+                            finalBytes = pako.inflate(payload);
+                        } catch (e) {
+                            throw new Error("解压失败，数据可能已损坏");
+                        }
+                    }
+
+                    let decodedStr = "";
+                    if (marker === MARKERS.COMPRESSED_UTF8 || marker === MARKERS.RAW_UTF8) {
+                        decodedStr = new TextDecoder('utf-8').decode(finalBytes);
+                    } else {
+                        decodedStr = new TextDecoder('utf-16be').decode(finalBytes);
+                    }
+
+                    const modeType = (marker === MARKERS.COMPRESSED_UTF8 || marker === MARKERS.COMPRESSED_UTF16) ? 'compressed' : 'raw';
+                    const encName = (marker === MARKERS.COMPRESSED_UTF8 || marker === MARKERS.RAW_UTF8) ? 'UTF-8' : 'UTF-16BE';
+                    return {
+                        text: decodedStr,
+                        stats: {
+                            mode: modeType,
+                            encoding: encName,
+                            zwCount: zwData.length,
+                            byteLen: finalBytes.length
+                        }
+                    };
+                }
+            }
+
+            // ================================================================
+            // 6. UI Interaction
+            // ================================================================
+
+            const els = {
+                cover: document.getElementById('coverText'),
+                secret: document.getElementById('secretText'),
+                encodeBtn: document.getElementById('encodeBtn'),
+                clearEncode: document.getElementById('clearEncodeBtn'),
+                sampleEncode: document.getElementById('sampleEncodeBtn'),
+                encodedResult: document.getElementById('encodedResult'),
+                copyBtn: document.getElementById('copyEncodedBtn'),
+                encodeArea: document.getElementById('encodeResultArea'),
+                encodeStats: document.getElementById('encodeStats'),
+                encodeError: document.getElementById('encodeError'),
+                modeBadge: document.getElementById('encodeModeBadge'),
+                
+                decodeText: document.getElementById('decodeText'),
+                decodeBtn: document.getElementById('decodeBtn'),
+                clearDecode: document.getElementById('clearDecodeBtn'),
+                sampleDecode: document.getElementById('sampleDecodeBtn'),
+                decodeBox: document.getElementById('decodedResultBox'),
+                decodeContent: document.getElementById('decodedContent'),
+                decodeStats: document.getElementById('decodeStats'),
+                decodeError: document.getElementById('decodeError')
+            };
+
+            function showEncodeStats(stats) {
+                const modeClass = stats.mode === 'compressed' ? 'mode-compressed' : (stats.mode === 'character' ? 'mode-char' : 'mode-raw');
+                const modeText = stats.mode === 'compressed' ? '压缩' : (stats.mode === 'character' ? '字符级' : '原始');
+                els.modeBadge.innerHTML = `<span class="mode-badge ${modeClass}">${modeText} (${stats.encoding})</span>`;
+                
+                els.encodeStats.innerHTML = `
+                    <div class="stat-item"><span class="stat-label">原始字符</span><span class="stat-value">${stats.originalLen}</span></div>
+                    <div class="stat-item"><span class="stat-label">零宽字符数</span><span class="stat-value">${stats.zwCount}</span></div>
+                    <div class="stat-item"><span class="stat-label">膨胀率</span><span class="stat-value ${parseFloat(stats.ratio) > 10 ? 'bad' : 'good'}">${stats.ratio}x</span></div>
+                    <div class="stat-item"><span class="stat-label">有效载荷</span><span class="stat-value">${stats.byteLen} B</span></div>
+                `;
+            }
+
+            els.encodeBtn.addEventListener('click', () => {
+                els.encodeError.classList.remove('show');
+                try {
+                    const res = encode(els.cover.value, els.secret.value);
+                    els.encodedResult.value = res.result;
+                    els.encodeArea.style.display = 'block';
+                    showEncodeStats(res.stats);
+                } catch (e) {
+                    els.encodeError.textContent = e.message;
+                    els.encodeError.classList.add('show');
+                    els.encodeArea.style.display = 'none';
+                }
+            });
+
+            els.copyBtn.addEventListener('click', () => {
+                if (!els.encodedResult.value) return;
+                navigator.clipboard.writeText(els.encodedResult.value).then(() => {
+                    const oldText = els.copyBtn.textContent;
+                    els.copyBtn.textContent = '已复制!';
+                    setTimeout(() => els.copyBtn.textContent = oldText, 2000);
+                });
+            });
+
+            els.encodedResult.addEventListener('dblclick', () => {
+                if (els.encodedResult.value) {
+                    els.decodeText.value = els.encodedResult.value;
+                    els.decodeText.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+
+            els.clearEncode.addEventListener('click', () => {
+                els.cover.value = '';
+                els.secret.value = '';
+                els.encodeArea.style.display = 'none';
+            });
+
+            els.sampleEncode.addEventListener('click', () => {
+                els.cover.value = "今天天气真不错，适合出去散步。";
+                els.secret.value = "这是一条绝密消息：Meeting at 10 PM. 🕵️‍♂️";
+                els.encodeBtn.click();
+            });
+
+            // Decode Logic
+            els.decodeBtn.addEventListener('click', () => {
+                els.decodeError.classList.remove('show');
+                els.decodeBox.classList.remove('show');
+                
+                const text = els.decodeText.value;
+                if (!text) {
+                    els.decodeError.textContent = "请输入文本";
+                    els.decodeError.classList.add('show');
+                    return;
+                }
+
+                try {
+                    const res = decode(text);
+                    els.decodeContent.textContent = res.text;
+                    els.decodeBox.classList.add('show');
+                    
+                    const modeClass = res.stats.mode === 'compressed' ? 'mode-compressed' : (res.stats.mode === 'character' ? 'mode-char' : 'mode-raw');
+                    els.decodeStats.innerHTML = `
+                        <div class="stat-item"><span class="stat-label">模式</span><span class="mode-badge ${modeClass}">${res.stats.mode.toUpperCase()}</span></div>
+                        <div class="stat-item"><span class="stat-label">编码</span><span class="stat-value">${res.stats.encoding}</span></div>
+                        <div class="stat-item"><span class="stat-label">还原字节</span><span class="stat-value">${res.stats.byteLen} B</span></div>
+                    `;
+                } catch (e) {
+                    els.decodeError.textContent = e.message;
+                    els.decodeError.classList.add('show');
+                }
+            });
+
+            els.clearDecode.addEventListener('click', () => {
+                els.decodeText.value = '';
+                els.decodeBox.classList.remove('show');
+            });
+
+            els.sampleDecode.addEventListener('click', () => {
+                const sampleRes = encode("Sample Cover ", "Hello World 123");
+                els.decodeText.value = sampleRes.result;
+                els.decodeBtn.click();
+            });
+
+        })();
+    </script>
+</body>
+</html>
