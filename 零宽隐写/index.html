@@ -4,282 +4,571 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>零宽字符隐写 V13</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
+    <link rel="stylesheet" href="/css/core/variables.css" />
+    <link rel="stylesheet" href="/css/core/base.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js">
+    </script>
     <style>
-        :root {
-            --primary: #3182ce;
-            --primary-hover: #2b6cb0;
-            --bg: #f5f7fa;
-            --card-bg: #ffffff;
-            --text-main: #1a202c;
-            --text-sub: #718096;
-            --border: #e2e8f0;
-            --success: #38a169;
-            --danger: #e53e3e;
-        }
-        * { box-sizing: border-box; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background: var(--bg);
-            margin: 0;
-            padding: 24px;
-            display: flex;
-            justify-content: center;
-            min-height: 100vh;
-            color: var(--text-main);
-        }
         .container {
-            max-width: 900px;
-            width: 100%;
-            background: var(--card-bg);
-            border-radius: 12px;
-            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
-            padding: 32px;
+            max-width: 980px;
+            margin: calc(var(--nav-height, 68px) + 20px) auto 40px auto;
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-md), var(--shadow-offset);
+            padding: var(--container-padding, 32px);
+            transition: background-color var(--transition-normal),
+                border-color var(--transition-normal),
+                box-shadow var(--transition-normal);
         }
-        h1 {
-            font-size: 1.8rem;
+        [data-theme="dark"] .container {
+            box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.03), var(--shadow-md), var(--shadow-offset);
+        }
+
+        /* ---------- 头部 ---------- */
+        .tool-header {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+        .tool-header h1 {
+            font-size: var(--font-size-h2, 1.8rem);
             font-weight: 700;
-            margin: 0 0 8px 0;
+            margin: 0;
             display: flex;
             align-items: center;
             gap: 12px;
             flex-wrap: wrap;
+            color: var(--text-color);
         }
-        .badge {
-            font-size: 0.7rem;
-            font-weight: 700;
-            background: #ebf8ff;
-            color: var(--primary);
-            padding: 3px 12px;
-            border-radius: 20px;
-            border: 1px solid #bee3f8;
+        .tool-header h1 small {
+            font-size: 0.6rem;
+            font-weight: 600;
+            background: rgba(var(--accent-rgb), 0.12);
+            color: var(--accent-color);
+            padding: 2px 14px;
+            border-radius: var(--radius-full);
+            border: 1px solid rgba(var(--accent-rgb), 0.2);
+            letter-spacing: 0.04em;
             text-transform: uppercase;
         }
-        .subtitle {
-            color: var(--text-sub);
-            font-size: 0.95rem;
-            margin-bottom: 24px;
+        .tool-sub {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
             padding-bottom: 16px;
-            border-bottom: 1px solid var(--border);
+            border-bottom: 1px solid var(--border-light);
             display: flex;
             justify-content: space-between;
             align-items: center;
-        }
-        .section { margin-bottom: 32px; }
-        .section-title {
-            font-weight: 600;
-            font-size: 1.1rem;
-            margin: 0 0 16px 0;
-            display: flex;
-            align-items: center;
+            flex-wrap: wrap;
             gap: 8px;
         }
-        label {
-            display: block;
-            font-weight: 500;
-            color: #4a5568;
-            margin: 12px 0 6px;
-            font-size: 0.9rem;
-        }
-        textarea {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #cbd5e0;
-            border-radius: 8px;
-            font-family: 'SF Mono', 'Consolas', monospace;
-            font-size: 0.9rem;
-            background: #fdfdfe;
-            resize: vertical;
-            transition: all 0.2s;
-            line-height: 1.5;
-        }
-        textarea:focus {
-            border-color: var(--primary);
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.15);
-        }
-        .btn-group {
-            margin: 16px 0;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        .btn {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 10px 24px;
-            border-radius: 6px;
-            font-size: 0.95rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.15s;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .btn:hover { background: var(--primary-hover); transform: translateY(-1px); }
-        .btn:active { transform: translateY(0); }
-        .btn-secondary { background: #a0aec0; }
-        .btn-secondary:hover { background: #718096; }
-        .btn-outline {
-            background: transparent;
-            color: #4a5568;
-            border: 1px solid #cbd5e0;
-        }
-        .btn-outline:hover { background: #f7fafc; border-color: #a0aec0; }
-        
-        .result-area {
-            margin-top: 20px;
-            animation: fadeIn 0.3s ease;
-        }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-        
-        .result-box { position: relative; }
-        .result-box textarea {
-            background: #f7fafc;
-            padding-right: 90px;
-            color: #2d3748;
-        }
-        .copy-btn {
-            position: absolute;
-            right: 10px;
-            top: 10px;
-            background: white;
-            border: 1px solid #e2e8f0;
-            padding: 6px 12px;
-            border-radius: 4px;
+        .tool-sub .hint {
             font-size: 0.8rem;
-            color: #2d3748;
-            cursor: pointer;
-            transition: all 0.15s;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            color: var(--text-secondary);
+            opacity: 0.7;
         }
-        .copy-btn:hover { background: #edf2f7; border-color: #cbd5e0; }
-
-        .stats-grid {
-            background: #f7fafc;
-            border-radius: 8px;
-            padding: 16px;
-            margin-top: 16px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 12px;
-            font-size: 0.9rem;
-            border: 1px solid #edf2f7;
-        }
-        .stat-item { display: flex; flex-direction: column; gap: 4px; }
-        .stat-label { color: #718096; font-size: 0.8rem; font-weight: 500; }
-        .stat-value { font-weight: 700; font-family: 'SF Mono', monospace; color: #2d3748; }
-        .stat-value.good { color: var(--success); }
-        .stat-value.bad { color: var(--danger); }
-
-        .mode-badge {
+        .tool-sub .hint i {
+            font-style: normal;
             display: inline-block;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            margin-left: 8px;
+            margin-right: 4px;
         }
-        .mode-compressed { background: #c6f6d5; color: #276749; }
-        .mode-raw { background: #fefcbf; color: #975a16; }
-        .mode-char { background: #bee3f8; color: #2a5470; }
 
-        .error-msg {
-            color: #c53030;
-            background: #fff5f5;
-            padding: 10px 14px;
-            border-radius: 6px;
-            margin-top: 12px;
-            display: none;
-            border-left: 4px solid #fc8181;
-            font-size: 0.9rem;
-        }
-        .error-msg.show { display: block; }
-
+        /* ---------- 映射表（复用 .char-map 但用变量） ---------- */
         .char-map {
             display: flex;
             flex-wrap: wrap;
             gap: 6px;
-            background: #f7fafc;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            border: 1px solid #edf2f7;
+            background: var(--surface-color-secondary);
+            padding: 12px 16px;
+            border-radius: var(--radius-md);
+            margin-bottom: 28px;
+            border: 1px solid var(--border-light);
+            align-items: center;
+        }
+        .char-map .map-label {
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            margin-right: 6px;
+            letter-spacing: 0.03em;
         }
         .char-pair {
             display: flex;
             align-items: center;
             gap: 4px;
-            font-size: 0.8rem;
-            background: white;
-            padding: 2px 6px;
-            border-radius: 4px;
-            border: 1px solid #e2e8f0;
+            font-size: 0.75rem;
+            background: var(--surface-color);
+            padding: 2px 10px 2px 6px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-light);
+            font-family: var(--font-mono);
+            color: var(--text-color);
         }
-        .char-pair span:first-child { font-size: 1.2rem; width: 20px; text-align: center; }
-        .char-pair span:last-child { color: #718096; font-family: monospace; }
+        .char-pair .zw-char {
+            font-size: 1.15rem;
+            width: 22px;
+            text-align: center;
+            line-height: 1.4;
+        }
+        .char-pair .hex-label {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
 
+        /* ---------- 区块 ---------- */
+        .section {
+            margin-bottom: 36px;
+        }
+        .section-title {
+            font-weight: 600;
+            font-size: 1.05rem;
+            margin: 0 0 16px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-color);
+        }
+        .section-title .badge-mode {
+            font-size: 0.65rem;
+            font-weight: 600;
+            padding: 2px 12px;
+            border-radius: var(--radius-full);
+            background: rgba(var(--accent-rgb), 0.08);
+            color: var(--accent-color);
+            border: 1px solid rgba(var(--accent-rgb), 0.15);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        /* ---------- 表单控件 ---------- */
+        label {
+            display: block;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin: 14px 0 6px;
+            font-size: 0.88rem;
+        }
+        textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-family: var(--font-mono);
+            font-size: 0.88rem;
+            background: var(--surface-color);
+            color: var(--text-color);
+            resize: vertical;
+            transition: border-color var(--transition-fast),
+                box-shadow var(--transition-fast);
+            line-height: 1.6;
+        }
+        textarea:focus {
+            border-color: var(--accent-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.14);
+        }
+        textarea[readonly] {
+            background: var(--surface-color-secondary);
+            color: var(--text-color);
+        }
+
+        /* ---------- 按钮（复用 .button 风格） ---------- */
+        .btn-group {
+            margin: 16px 0 6px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 24px;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 0.92rem;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all var(--transition-fast);
+            background: var(--surface-color);
+            color: var(--text-color);
+            border-color: var(--border-color);
+            font-family: var(--font-sans);
+            text-decoration: none;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+        .btn:active {
+            transform: translateY(0);
+        }
+        .btn-primary {
+            background: var(--accent-color);
+            color: #fff;
+            border-color: var(--accent-color);
+            box-shadow: 0 4px 12px rgba(var(--accent-rgb), 0.25);
+        }
+        .btn-primary:hover {
+            background: var(--accent-dark);
+            border-color: var(--accent-dark);
+            box-shadow: 0 6px 18px rgba(var(--accent-rgb), 0.35);
+        }
+        [data-theme="dark"] .btn-primary:hover {
+            color: #14141a;
+        }
+        .btn-success {
+            background: var(--accent-color);
+            color: #fff;
+            border-color: var(--accent-color);
+            box-shadow: 0 4px 12px rgba(var(--accent-rgb), 0.25);
+        }
+        .btn-success:hover {
+            background: var(--accent-dark);
+            border-color: var(--accent-dark);
+            box-shadow: 0 6px 18px rgba(var(--accent-rgb), 0.35);
+        }
+        [data-theme="dark"] .btn-success:hover {
+            color: #14141a;
+        }
+        .btn-outline {
+            background: transparent;
+            color: var(--text-secondary);
+            border-color: var(--border-color);
+        }
+        .btn-outline:hover {
+            background: var(--surface-color-secondary);
+            border-color: var(--accent-color);
+            color: var(--text-color);
+        }
+        .btn-secondary {
+            background: var(--surface-color-secondary);
+            color: var(--text-secondary);
+            border-color: var(--border-color);
+        }
+        .btn-secondary:hover {
+            background: var(--border-color);
+            color: var(--text-color);
+        }
+        .btn-danger {
+            background: rgba(var(--danger-rgb, 201, 70, 61), 0.08);
+            color: var(--danger-color, #c9463d);
+            border-color: rgba(var(--danger-rgb, 201, 70, 61), 0.2);
+        }
+        .btn-danger:hover {
+            background: var(--danger-color, #c9463d);
+            color: #fff;
+            border-color: var(--danger-color, #c9463d);
+        }
+        [data-theme="dark"] .btn-danger:hover {
+            color: #14141a;
+        }
+
+        /* ---------- 结果区 ---------- */
+        .result-area {
+            margin-top: 18px;
+            animation: fadeInUp 0.35s var(--transition-bounce);
+        }
+        @keyframes fadeInUp {
+            0% {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-box {
+            position: relative;
+        }
+        .result-box textarea {
+            padding-right: 92px;
+            background: var(--surface-color-secondary);
+            color: var(--text-color);
+        }
+        .copy-btn {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            padding: 5px 14px;
+            border-radius: var(--radius-sm);
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            box-shadow: var(--shadow-sm);
+            font-family: var(--font-sans);
+        }
+        .copy-btn:hover {
+            background: var(--accent-color);
+            color: #fff;
+            border-color: var(--accent-color);
+        }
+        [data-theme="dark"] .copy-btn:hover {
+            color: #14141a;
+        }
+
+        /* ---------- 统计网格 ---------- */
+        .stats-grid {
+            background: var(--surface-color-secondary);
+            border-radius: var(--radius-md);
+            padding: 14px 18px;
+            margin-top: 14px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px 16px;
+            border: 1px solid var(--border-light);
+        }
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.7rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .stat-value {
+            font-weight: 700;
+            font-family: var(--font-mono);
+            color: var(--text-color);
+            font-size: 0.95rem;
+        }
+        .stat-value.good {
+            color: var(--accent-color);
+        }
+        .stat-value.bad {
+            color: var(--danger-color, #c9463d);
+        }
+
+        /* ---------- 模式徽章 ---------- */
+        .mode-badge {
+            display: inline-block;
+            padding: 2px 12px;
+            border-radius: var(--radius-full);
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+            border: 1px solid transparent;
+        }
+        .mode-compressed {
+            background: rgba(var(--accent-rgb), 0.12);
+            color: var(--accent-color);
+            border-color: rgba(var(--accent-rgb), 0.2);
+        }
+        .mode-raw {
+            background: var(--surface-color-secondary);
+            color: var(--text-secondary);
+            border-color: var(--border-color);
+        }
+        .mode-char {
+            background: rgba(var(--accent-light-rgb, 205, 129, 137), 0.15);
+            color: var(--accent-light, #cd8189);
+            border-color: rgba(var(--accent-light-rgb, 205, 129, 137), 0.25);
+        }
+
+        .header-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        /* ---------- 解码结果 ---------- */
         .decoded-box {
-            background: #f0fff4;
-            border: 1px solid #9ae6b4;
-            border-radius: 8px;
-            padding: 16px;
+            background: rgba(var(--accent-rgb), 0.04);
+            border: 1px solid rgba(var(--accent-rgb), 0.15);
+            border-radius: var(--radius-md);
+            padding: 16px 20px;
             margin-top: 16px;
             display: none;
         }
-        .decoded-box.show { display: block; }
-        .secret-content {
-            background: white;
-            padding: 12px;
-            border-radius: 6px;
+        .decoded-box.show {
+            display: block;
+            animation: fadeInUp 0.3s var(--transition-bounce);
+        }
+        .decoded-box .secret-content {
+            background: var(--surface-color);
+            padding: 12px 16px;
+            border-radius: var(--radius-sm);
             margin-top: 8px;
             word-break: break-all;
-            font-family: 'SF Mono', monospace;
-            border: 1px solid #e2e8f0;
+            font-family: var(--font-mono);
+            border: 1px solid var(--border-light);
             max-height: 200px;
             overflow-y: auto;
+            color: var(--text-color);
+            font-size: 0.9rem;
         }
 
+        /* ---------- 错误消息 ---------- */
+        .error-msg {
+            color: var(--danger-color, #c9463d);
+            background: rgba(var(--danger-rgb, 201, 70, 61), 0.06);
+            padding: 10px 16px;
+            border-radius: var(--radius-sm);
+            margin-top: 12px;
+            display: none;
+            border-left: 3px solid var(--danger-color, #c9463d);
+            font-size: 0.9rem;
+        }
+        .error-msg.show {
+            display: block;
+        }
+
+        /* ---------- 响应式微调 ---------- */
         @media (max-width: 600px) {
-            .container { padding: 20px; }
-            .btn-group { flex-direction: column; }
-            .btn { width: 100%; justify-content: center; }
+            .container {
+                padding: 16px;
+                margin: calc(var(--nav-height-mobile, 52px) + 12px) auto 24px auto;
+            }
+            .tool-header h1 {
+                font-size: 1.3rem;
+            }
+            .tool-header h1 small {
+                font-size: 0.5rem;
+                padding: 1px 10px;
+            }
+            .btn-group {
+                flex-direction: column;
+            }
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            .char-map {
+                padding: 10px 12px;
+                gap: 4px;
+            }
+            .char-pair {
+                font-size: 0.65rem;
+                padding: 1px 6px 1px 4px;
+            }
+            .char-pair .zw-char {
+                font-size: 1rem;
+                width: 18px;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+                padding: 12px 14px;
+            }
+            .result-box textarea {
+                padding-right: 70px;
+            }
+            .copy-btn {
+                padding: 4px 10px;
+                font-size: 0.7rem;
+                right: 6px;
+                top: 6px;
+            }
+            .tool-sub {
+                font-size: 0.8rem;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .section {
+                margin-bottom: 24px;
+            }
+        }
+
+        @media (min-width: 601px) and (max-width: 900px) {
+            .container {
+                padding: 24px;
+            }
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (min-width: 901px) {
+            .stats-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        /* ---------- 暗色主题微调 ---------- */
+        [data-theme="dark"] .btn-outline:hover {
+            background: var(--surface-color-secondary);
+        }
+        [data-theme="dark"] .decoded-box {
+            background: rgba(var(--accent-rgb), 0.06);
+        }
+        [data-theme="dark"] .char-map {
+            background: var(--surface-color-secondary);
+        }
+        [data-theme="dark"] .char-pair {
+            background: var(--surface-color);
+        }
+        [data-theme="dark"] .stats-grid {
+            background: var(--surface-color-secondary);
+        }
+        [data-theme="dark"] .result-box textarea {
+            background: var(--surface-color-secondary);
+        }
+        [data-theme="dark"] .mode-raw {
+            background: var(--surface-color-secondary);
+            color: var(--text-secondary);
+        }
+        [data-theme="dark"] .mode-compressed {
+            background: rgba(var(--accent-rgb), 0.15);
         }
     </style>
 </head>
 <body>
+
     <div class="container">
-        <h1>
-            ⚡ 零宽字符隐写
-            <span class="badge">V13 Optimized</span>
-        </h1>
-        <div class="subtitle">
-            <span>16种零宽字符 · 4 bit/字符 · 智能压缩策略</span>
-            <span style="font-size: 0.8rem; color: #a0aec0;">双击结果自动填入解码区</span>
+        <!-- ===== 头部 ===== -->
+        <div class="tool-header">
+            <h1>
+                ⚡ 零宽字符隐写
+                <small>V13 Optimized</small>
+            </h1>
+        </div>
+        <div class="tool-sub">
+            <span>16 种零宽字符 · 4 bit/字符 · 智能压缩策略</span>
+            <span class="hint"><i>⏎</i> 双击结果自动填入解码区</span>
         </div>
 
-        <div class="char-map" id="charMapDisplay"></div>
+        <!-- ===== 映射表 ===== -->
+        <div class="char-map" id="charMapDisplay">
+            <span class="map-label">映射表</span>
+            <!-- 由 JS 动态填充 -->
+        </div>
 
-        <!-- Encoding Section -->
+        <!-- ===== 编码区 ===== -->
         <div class="section">
-            <div class="section-title">🔒 编码隐写</div>
+            <div class="section-title">
+                🔒 编码隐写
+                <span class="badge-mode">4-bit</span>
+            </div>
+
             <label for="coverText">掩护文本 (Cover Text)</label>
-            <textarea id="coverText" rows="2" placeholder="可选：输入公开可见的文字..."></textarea>
+            <textarea id="coverText" rows="2" placeholder="可选：输入公开可见的文字…"></textarea>
 
             <label for="secretText">秘密信息 (Secret Message)</label>
-            <textarea id="secretText" rows="3" placeholder="输入要隐藏的内容..."></textarea>
+            <textarea id="secretText" rows="3" placeholder="输入要隐藏的内容…"></textarea>
 
             <div class="btn-group">
-                <button class="btn" id="encodeBtn">开始编码</button>
+                <button class="btn btn-primary" id="encodeBtn">开始编码</button>
                 <button class="btn btn-outline" id="sampleEncodeBtn">加载示例</button>
                 <button class="btn btn-secondary" id="clearEncodeBtn">清空</button>
             </div>
 
             <div class="result-area" id="encodeResultArea" style="display:none;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                    <label style="margin:0;">编码结果</label>
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px; margin-bottom:10px;">
+                    <label style="margin:0; font-weight:600; color:var(--text-color);">编码结果</label>
                     <span id="encodeModeBadge"></span>
                 </div>
                 <div class="result-box">
@@ -291,22 +580,26 @@
             <div class="error-msg" id="encodeError"></div>
         </div>
 
-        <!-- Decoding Section -->
+        <!-- ===== 解码区 ===== -->
         <div class="section">
-            <div class="section-title">🔓 解码提取</div>
+            <div class="section-title">
+                🔓 解码提取
+                <span class="badge-mode">自动识别</span>
+            </div>
+
             <label for="decodeText">待解码文本</label>
-            <textarea id="decodeText" rows="4" placeholder="粘贴包含零宽字符的文本..."></textarea>
+            <textarea id="decodeText" rows="4" placeholder="粘贴包含零宽字符的文本…"></textarea>
 
             <div class="btn-group">
-                <button class="btn" style="background:var(--success);" id="decodeBtn">开始解码</button>
+                <button class="btn btn-success" id="decodeBtn">开始解码</button>
                 <button class="btn btn-outline" id="sampleDecodeBtn">加载示例</button>
                 <button class="btn btn-secondary" id="clearDecodeBtn">清空</button>
             </div>
 
             <div class="decoded-box" id="decodedResultBox">
-                <strong>提取结果：</strong>
+                <strong style="color:var(--text-color);">提取结果：</strong>
                 <div class="secret-content" id="decodedContent"></div>
-                <div class="stats-grid" id="decodeStats" style="margin-top:12px; background:white; border:none; padding:0;"></div>
+                <div class="stats-grid" id="decodeStats" style="margin-top:12px; background:var(--surface-color); border:none; padding:0;"></div>
             </div>
             <div class="error-msg" id="decodeError"></div>
         </div>
@@ -319,7 +612,7 @@
             // ================================================================
             // 1. Constants & Configuration
             // ================================================================
-            
+
             // 16 Zero-Width Characters mapped to 0-F
             const ZW_CHARS = [
                 '\u200B', // 0
@@ -335,18 +628,16 @@
                 '\u2064', // A
                 '\u202A', // B
                 '\u202B', // C
-                '\u202C', // D (now used as normal data mapping)
+                '\u202C', // D
                 '\u202D', // E
-                '\u202E'  // F
+                '\u202E' // F
             ];
 
-            // Reverse Map for O(1) Lookup
             const ZW_TO_HEX = {};
             ZW_CHARS.forEach((char, index) => {
                 ZW_TO_HEX[char] = index;
             });
 
-            // Markers (Using first 5 chars)
             const MARKERS = {
                 COMPRESSED_UTF8: ZW_CHARS[0],
                 COMPRESSED_UTF16: ZW_CHARS[1],
@@ -355,23 +646,20 @@
                 CHARACTER_MODE: ZW_CHARS[4]
             };
 
-            // Populate Char Map Display
-            const charMapContainer = document.getElementById('charMapDisplay');
-            let mapHtml = '<span style="font-weight:600; margin-right:8px; align-self:center;">映射表:</span>';
+            // 映射表渲染
+            const mapContainer = document.getElementById('charMapDisplay');
+            let mapHtml = '<span class="map-label">映射表</span>';
             ZW_CHARS.forEach((char, i) => {
                 const hex = i.toString(16).toUpperCase();
-                mapHtml += `<div class="char-pair"><span>${char}</span><span>${hex}</span></div>`;
+                mapHtml +=
+                    `<div class="char-pair"><span class="zw-char">${char}</span><span class="hex-label">${hex}</span></div>`;
             });
-            charMapContainer.innerHTML = mapHtml;
+            mapContainer.innerHTML = mapHtml;
 
             // ================================================================
-            // 2. Core Algorithms (Optimized)
+            // 2. Core Algorithms
             // ================================================================
 
-            /**
-             * Converts Uint8Array to Zero-Width String using 4-bit encoding.
-             * No terminator added – length is determined by header.
-             */
             function bytesToZw(bytes) {
                 const len = bytes.length;
                 const result = new Array(len * 2);
@@ -383,17 +671,12 @@
                 return result.join('');
             }
 
-            /**
-             * Converts a string of zero-width characters back to Uint8Array.
-             * Ignores any non-ZW characters (for robustness).
-             */
             function zwToBytes(zwStr) {
                 const valid = [];
                 for (let i = 0; i < zwStr.length; i++) {
                     const c = zwStr[i];
                     if (ZW_TO_HEX[c] !== undefined) valid.push(c);
                 }
-                // If odd number, drop last nibble
                 if (valid.length % 2) valid.pop();
                 const byteCount = valid.length / 2;
                 const bytes = new Uint8Array(byteCount);
@@ -404,43 +687,32 @@
             }
 
             // ================================================================
-            // 3. Character Mode (3-bit, fallback for very short texts)
+            // 3. Character Mode (3-bit)
             // ================================================================
 
-            // Using first 8 ZW_CHARS for 3-bit encoding
             const CHAR_MAP_8 = ZW_CHARS.slice(0, 8);
             const REV_CHAR_MAP_8 = {};
             CHAR_MAP_8.forEach((c, i) => REV_CHAR_MAP_8[c] = i);
 
             function encodeCharMode(str) {
-                // Convert string to bitstream with markers
                 const bits = [];
                 let i = 0;
                 while (i < str.length) {
                     const cp = str.codePointAt(i);
                     if (cp === undefined) break;
-                    let code = cp;
-                    let bitLen = 0;
                     if (cp <= 0x7F) {
-                        // ASCII: 0 + 7 bits
                         bits.push(0);
                         for (let b = 6; b >= 0; b--) bits.push((cp >> b) & 1);
-                        bitLen = 8;
                     } else if (cp <= 0xFFFF) {
-                        // BMP: 1 + 16 bits
                         bits.push(1);
                         for (let b = 15; b >= 0; b--) bits.push((cp >> b) & 1);
-                        bitLen = 17;
                     } else if (cp <= 0x10FFFF) {
-                        // Non-BMP: 2 + 20 bits
                         bits.push(2);
                         const data = cp - 0x10000;
                         for (let b = 19; b >= 0; b--) bits.push((data >> b) & 1);
-                        bitLen = 22;
                     }
                     i += (cp > 0xFFFF) ? 2 : 1;
                 }
-                // Pad to multiple of 3
                 while (bits.length % 3) bits.push(0);
                 const zwChars = [];
                 for (let idx = 0; idx < bits.length; idx += 3) {
@@ -464,19 +736,19 @@
                     if (pos + 1 >= bits.length) break;
                     const marker = (bits[pos] << 1) | bits[pos + 1];
                     pos += 2;
-                    if (marker === 0) { // ASCII
+                    if (marker === 0) {
                         if (pos + 7 > bits.length) break;
                         let val = 0;
                         for (let k = 0; k < 7; k++) val = (val << 1) | (bits[pos + k] || 0);
                         pos += 7;
                         chars.push(String.fromCodePoint(val));
-                    } else if (marker === 1) { // BMP
+                    } else if (marker === 1) {
                         if (pos + 16 > bits.length) break;
                         let val = 0;
                         for (let k = 0; k < 16; k++) val = (val << 1) | (bits[pos + k] || 0);
                         pos += 16;
                         chars.push(String.fromCodePoint(val));
-                    } else if (marker === 2) { // Non-BMP
+                    } else if (marker === 2) {
                         if (pos + 20 > bits.length) break;
                         let val = 0;
                         for (let k = 0; k < 20; k++) val = (val << 1) | (bits[pos + k] || 0);
@@ -489,11 +761,11 @@
             }
 
             // ================================================================
-            // 4. Strategy Selection (Auto-optimize)
+            // 4. Strategy Selection
             // ================================================================
 
             function getBestStrategy(secretStr) {
-                if (!secretStr) throw new Error("Empty secret");
+                if (!secretStr) throw new Error('秘密信息不能为空');
 
                 const utf8Bytes = new TextEncoder().encode(secretStr);
                 const utf16Bytes = new Uint8Array(secretStr.length * 2);
@@ -511,7 +783,6 @@
                     const total = new Uint8Array(header.length + bytes.length);
                     total.set(header);
                     total.set(bytes, header.length);
-                    // Each byte -> 2 ZW chars (no terminator)
                     const zwCount = total.length * 2;
                     candidates.push({
                         marker: marker,
@@ -523,22 +794,20 @@
                     });
                 };
 
-                // Byte Modes (4-bit)
                 evaluate(utf8Bytes, MARKERS.RAW_UTF8, 'raw', 'UTF-8');
                 evaluate(utf16Bytes, MARKERS.RAW_UTF16, 'raw', 'UTF-16BE');
 
                 try {
                     const compUtf8 = pako.deflate(utf8Bytes, { level: 9 });
                     evaluate(compUtf8, MARKERS.COMPRESSED_UTF8, 'compressed', 'UTF-8');
-                } catch(e) {}
+                } catch (_) {}
                 try {
                     const compUtf16 = pako.deflate(utf16Bytes, { level: 9 });
                     evaluate(compUtf16, MARKERS.COMPRESSED_UTF16, 'compressed', 'UTF-16BE');
-                } catch(e) {}
+                } catch (_) {}
 
-                // Character Mode (3-bit) – fallback for very short texts
                 const charZw = encodeCharMode(secretStr);
-                const charZwCount = 1 + charZw.length; // marker + data
+                const charZwCount = 1 + charZw.length;
                 candidates.push({
                     marker: MARKERS.CHARACTER_MODE,
                     data: charZw,
@@ -554,13 +823,12 @@
             }
 
             // ================================================================
-            // 5. Main Encode/Decode
+            // 5. Encode / Decode
             // ================================================================
 
             function encode(coverText, secretText) {
                 const strategy = getBestStrategy(secretText);
-                
-                // Build payload: header (4 bytes length) + data
+
                 const header = new Uint8Array(4);
                 new DataView(header.buffer).setUint32(0, strategy.data.length, false);
                 const fullData = new Uint8Array(4 + strategy.data.length);
@@ -569,7 +837,6 @@
 
                 let zwData;
                 if (strategy.isChar) {
-                    // Character mode: data is already a ZW string (no header)
                     zwData = strategy.data;
                 } else {
                     zwData = bytesToZw(fullData);
@@ -591,7 +858,6 @@
             }
 
             function decode(text) {
-                // Find first marker occurrence
                 let marker = null;
                 let markerIndex = -1;
                 for (const key in MARKERS) {
@@ -602,15 +868,12 @@
                         markerIndex = idx;
                     }
                 }
-                if (!marker) throw new Error("未找到有效的隐写标记");
+                if (!marker) throw new Error('未找到有效的隐写标记');
 
-                // Extract substring after marker
                 const dataPart = text.substring(markerIndex + 1);
-                // Filter only ZW chars (robustness)
                 const zwData = dataPart.split('').filter(c => ZW_TO_HEX[c] !== undefined).join('');
 
                 if (marker === MARKERS.CHARACTER_MODE) {
-                    // Character mode: decode directly
                     const decoded = decodeCharMode(zwData);
                     return {
                         text: decoded,
@@ -622,9 +885,8 @@
                         }
                     };
                 } else {
-                    // Byte mode: zwData is 4-bit encoded (no header yet)
                     const rawBytes = zwToBytes(zwData);
-                    if (rawBytes.length < 4) throw new Error("数据长度不足");
+                    if (rawBytes.length < 4) throw new Error('数据长度不足');
                     const dataLen = new DataView(rawBytes.buffer).getUint32(0, false);
                     const payload = rawBytes.slice(4, 4 + dataLen);
 
@@ -632,20 +894,22 @@
                     if (marker === MARKERS.COMPRESSED_UTF8 || marker === MARKERS.COMPRESSED_UTF16) {
                         try {
                             finalBytes = pako.inflate(payload);
-                        } catch (e) {
-                            throw new Error("解压失败，数据可能已损坏");
+                        } catch (_) {
+                            throw new Error('解压失败，数据可能已损坏');
                         }
                     }
 
-                    let decodedStr = "";
+                    let decodedStr = '';
                     if (marker === MARKERS.COMPRESSED_UTF8 || marker === MARKERS.RAW_UTF8) {
                         decodedStr = new TextDecoder('utf-8').decode(finalBytes);
                     } else {
                         decodedStr = new TextDecoder('utf-16be').decode(finalBytes);
                     }
 
-                    const modeType = (marker === MARKERS.COMPRESSED_UTF8 || marker === MARKERS.COMPRESSED_UTF16) ? 'compressed' : 'raw';
-                    const encName = (marker === MARKERS.COMPRESSED_UTF8 || marker === MARKERS.RAW_UTF8) ? 'UTF-8' : 'UTF-16BE';
+                    const modeType = (marker === MARKERS.COMPRESSED_UTF8 || marker === MARKERS.COMPRESSED_UTF16) ?
+                        'compressed' : 'raw';
+                    const encName = (marker === MARKERS.COMPRESSED_UTF8 || marker === MARKERS.RAW_UTF8) ? 'UTF-8' :
+                    'UTF-16BE';
                     return {
                         text: decodedStr,
                         stats: {
@@ -674,7 +938,7 @@
                 encodeStats: document.getElementById('encodeStats'),
                 encodeError: document.getElementById('encodeError'),
                 modeBadge: document.getElementById('encodeModeBadge'),
-                
+
                 decodeText: document.getElementById('decodeText'),
                 decodeBtn: document.getElementById('decodeBtn'),
                 clearDecode: document.getElementById('clearDecodeBtn'),
@@ -686,10 +950,13 @@
             };
 
             function showEncodeStats(stats) {
-                const modeClass = stats.mode === 'compressed' ? 'mode-compressed' : (stats.mode === 'character' ? 'mode-char' : 'mode-raw');
-                const modeText = stats.mode === 'compressed' ? '压缩' : (stats.mode === 'character' ? '字符级' : '原始');
-                els.modeBadge.innerHTML = `<span class="mode-badge ${modeClass}">${modeText} (${stats.encoding})</span>`;
-                
+                const modeClass = stats.mode === 'compressed' ? 'mode-compressed' :
+                    (stats.mode === 'character' ? 'mode-char' : 'mode-raw');
+                const modeText = stats.mode === 'compressed' ? '压缩' :
+                    (stats.mode === 'character' ? '字符级' : '原始');
+                els.modeBadge.innerHTML =
+                    `<span class="mode-badge ${modeClass}">${modeText} (${stats.encoding})</span>`;
+
                 els.encodeStats.innerHTML = `
                     <div class="stat-item"><span class="stat-label">原始字符</span><span class="stat-value">${stats.originalLen}</span></div>
                     <div class="stat-item"><span class="stat-label">零宽字符数</span><span class="stat-value">${stats.zwCount}</span></div>
@@ -715,9 +982,9 @@
             els.copyBtn.addEventListener('click', () => {
                 if (!els.encodedResult.value) return;
                 navigator.clipboard.writeText(els.encodedResult.value).then(() => {
-                    const oldText = els.copyBtn.textContent;
-                    els.copyBtn.textContent = '已复制!';
-                    setTimeout(() => els.copyBtn.textContent = oldText, 2000);
+                    const old = els.copyBtn.textContent;
+                    els.copyBtn.textContent = '已复制 ✓';
+                    setTimeout(() => els.copyBtn.textContent = old, 1800);
                 });
             });
 
@@ -735,19 +1002,18 @@
             });
 
             els.sampleEncode.addEventListener('click', () => {
-                els.cover.value = "今天天气真不错，适合出去散步。";
-                els.secret.value = "这是一条绝密消息：Meeting at 10 PM. 🕵️‍♂️";
+                els.cover.value = '今天天气真不错，适合出去散步。';
+                els.secret.value = '这是一条绝密消息：Meeting at 10 PM. 🕵️‍♂️';
                 els.encodeBtn.click();
             });
 
-            // Decode Logic
             els.decodeBtn.addEventListener('click', () => {
                 els.decodeError.classList.remove('show');
                 els.decodeBox.classList.remove('show');
-                
+
                 const text = els.decodeText.value;
                 if (!text) {
-                    els.decodeError.textContent = "请输入文本";
+                    els.decodeError.textContent = '请输入待解码文本';
                     els.decodeError.classList.add('show');
                     return;
                 }
@@ -756,8 +1022,9 @@
                     const res = decode(text);
                     els.decodeContent.textContent = res.text;
                     els.decodeBox.classList.add('show');
-                    
-                    const modeClass = res.stats.mode === 'compressed' ? 'mode-compressed' : (res.stats.mode === 'character' ? 'mode-char' : 'mode-raw');
+
+                    const modeClass = res.stats.mode === 'compressed' ? 'mode-compressed' :
+                        (res.stats.mode === 'character' ? 'mode-char' : 'mode-raw');
                     els.decodeStats.innerHTML = `
                         <div class="stat-item"><span class="stat-label">模式</span><span class="mode-badge ${modeClass}">${res.stats.mode.toUpperCase()}</span></div>
                         <div class="stat-item"><span class="stat-label">编码</span><span class="stat-value">${res.stats.encoding}</span></div>
@@ -775,12 +1042,13 @@
             });
 
             els.sampleDecode.addEventListener('click', () => {
-                const sampleRes = encode("Sample Cover ", "Hello World 123");
+                const sampleRes = encode('Sample Cover ', 'Hello World 123');
                 els.decodeText.value = sampleRes.result;
                 els.decodeBtn.click();
             });
 
         })();
     </script>
+
 </body>
 </html>
