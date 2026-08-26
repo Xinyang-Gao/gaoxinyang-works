@@ -1,7 +1,7 @@
 {
-      "description": "零宽隐写",
+      "description": "使用零宽 Unicode 字符对明文编码（包括解码），使加密信息可以隐藏在正常文本中",
       "author": "高新炀",
       "date": "2026-07-23",
-      "tag": ["HTML"],
+      "tag": ["HTML","工具"],
       "link": ""
     }

@@ -1,7 +1,7 @@
 {
-      "description": "pixiv图片检索",
+      "description": "pixiv 图片检索小工具，通过 pixiv.re 获取图片",
       "author": "高新炀",
       "date": "2026-08-14",
-      "tag": ["HTML"],
+      "tag": ["HTML","工具"],
       "link": ""
     }
