@@ -3,5 +3,6 @@
       "author": "高新炀",
       "date": "2026-07-26",
       "tag": ["JavaScript","Tampermonkey"],
-      "link": "https://github.com/Xinyang-Gao/cursor-fx-userscript"
+      "link": "https://github.com/Xinyang-Gao/cursor-fx-userscript",
+      "cover": "https://raw.githubusercontent.com/Xinyang-Gao/cursor-fx-userscript/main/assets/demo.gif"
     } 
