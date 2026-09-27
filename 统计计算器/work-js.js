@@ -1,37 +1,17 @@
+/* 主题：优先本地存储的选择，未选择时跟随系统偏好 */
 (function initTheme() {
-    const themeToggle = document.getElementById('themeToggleCheckbox');
-    if (!themeToggle) return;
-
-    // 读取本地存储或系统偏好
-    const storedTheme = localStorage.getItem('theme');
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    let isDark = false;
-    if (storedTheme === 'dark') {
-        isDark = true;
-    } else if (storedTheme === 'light') {
-        isDark = false;
-    } else {
-        isDark = prefersDark;
-    }
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
 
     const applyTheme = (dark) => {
-        if (dark) {
-            document.documentElement.setAttribute('data-theme', 'dark');
-            if (themeToggle) themeToggle.checked = true;
-            localStorage.setItem('theme', 'dark');
-        } else {
-            document.documentElement.setAttribute('data-theme', 'light');
-            if (themeToggle) themeToggle.checked = false;
-            localStorage.setItem('theme', 'light');
-        }
+        document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
     };
-    applyTheme(isDark);
 
-    if (themeToggle) {
-        themeToggle.addEventListener('change', (e) => {
-            applyTheme(e.target.checked);
-        });
-    }
+    const storedTheme = localStorage.getItem('theme');
+    applyTheme(storedTheme ? storedTheme === 'dark' : prefersDark.matches);
+
+    prefersDark.addEventListener('change', (e) => {
+        if (!localStorage.getItem('theme')) applyTheme(e.matches);
+    });
 })();
 
 

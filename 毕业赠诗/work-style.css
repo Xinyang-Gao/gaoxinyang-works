@@ -15,6 +15,15 @@ body {
     flex-direction: column;
 }
 
+/* 应用外壳 */
+.app {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100vw;
+    position: relative;
+}
+
 /* 背景纹理 — 宣纸感 */
 .glass-bg {
     position: fixed;
