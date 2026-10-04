@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SVG 绘制动画</title>
+<link rel="stylesheet" href="/works/SVG绘制动画/work-style.css">
+</head>
+<body>
+<div class="wrap">
+  <h1>SVG 绘制动画</h1>
+  <p class="sub">所有路径同时起笔、同时收笔，非线性缓动 &middot; 按 <kbd>空格</kbd> 重播</p>
+
+  <div id="drop" class="drop">
+    <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 16V4"/><path d="M7 9l5-5 5 5"/><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/>
+    </svg>
+    <div class="t">拖入 SVG 文件，或点击选择</div>
+    <div class="h">也可以直接 Ctrl / ⌘ + V 粘贴 SVG 代码</div>
+  </div>
+
+  <div id="stage" class="stage card hidden"></div>
+  <div id="err" class="err hidden"></div>
+
+  <div id="bar" class="bar card hidden">
+    <button id="replay" class="btn primary">重新播放</button>
+    <button id="change" class="btn">更换</button>
+    <label class="ctl">时长
+      <input id="dur" type="range" min="300" max="6000" step="100" value="2000">
+      <span id="durVal" class="val">2.0s</span>
+    </label>
+    <label class="ctl">缓动
+      <select id="ease">
+        <option value="smooth">平滑（先慢-快-慢）</option>
+        <option value="sine">正弦</option>
+        <option value="out">急起缓收</option>
+        <option value="in">缓起急收</option>
+        <option value="linear">线性</option>
+      </select>
+    </label>
+    <label class="chk"><input id="fill" type="checkbox" checked>填充</label>
+    <label class="chk"><input id="round" type="checkbox" checked>圆角端点</label>
+    <label class="chk"><input id="even" type="checkbox">恒定速度</label>
+    <span id="meta" class="meta"></span>
+  </div>
+</div>
+
+<input id="file" type="file" accept=".svg,image/svg+xml" hidden>
+
+<script src="/works/SVG绘制动画/work-js.js"></script>
+</body>
+</html>
